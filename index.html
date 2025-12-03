@@ -47,7 +47,33 @@
             color: #EAECEF;
         }
 
-        .tabs {
+        /* Updated Tabs for PnL and Auto TP/SL */
+        .main-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2B3139;
+        }
+
+        .main-tab {
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            color: #848E9C;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px; /* To hide the bottom border gap */
+        }
+
+        .main-tab.active {
+            color: #FCD535;
+            border-bottom: 2px solid #FCD535;
+        }
+        /* End of Main Tabs */
+
+        .sub-tabs {
             display: flex;
             gap: 4px;
             background: #2B3139;
@@ -201,10 +227,30 @@
             font-size: 13px;
         }
 
+        /* Styling for Save Button - Yellow */
+        .save-btn {
+            width: 100%;
+            padding: 12px;
+            background: #FCD535; /* Binance yellow */
+            border: none;
+            border-radius: 4px;
+            color: #1E2026;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 20px; /* Add some space above */
+        }
+
+        .save-btn:hover {
+            background: #FFEB89;
+        }
+
+        /* Styling for Calculate Button - Blue */
         .calculate-btn {
             width: 100%;
             padding: 12px;
-            background: #806B38;
+            background: #474D57; /* Darker/Neutral for PnL */
             border: none;
             border-radius: 4px;
             color: #EAECEF;
@@ -215,7 +261,17 @@
         }
 
         .calculate-btn:hover {
-            background: #8f7840;
+            background: #5A606A;
+        }
+        
+        /* New style for the primary calculate button in Auto TP/SL section */
+        #calculateAuto {
+            background: #18A0FB; /* A strong blue, similar to Binance's primary action color */
+            color: #EAECEF;
+        }
+
+        #calculateAuto:hover {
+            background: #39b0ff;
         }
 
         .results-panel {
@@ -268,16 +324,32 @@
             margin: 20px 0;
         }
 
-        .auto-section {
-            margin-top: 20px;
-        }
-
         .note {
             font-size: 11px;
             color: #474D57;
             margin-top: 16px;
             line-height: 1.5;
         }
+
+        /* New styles for tab content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+        /* End of new styles */
+
+        /* Added style for the save message */
+        .save-message {
+            text-align: center;
+            font-size: 12px;
+            color: #0ECB81;
+            margin-top: 10px;
+            height: 15px;
+        }
+
 
         @media (max-width: 900px) {
             .container {
@@ -288,83 +360,124 @@
 </head>
 <body>
     <div class="container">
-        <!-- Left Panel - Calculator -->
         <div class="panel">
             <div class="header">
                 <h2>PnL Calculator</h2>
             </div>
-
-            <div class="tabs">
-                <button class="tab" id="longBtn">Long</button>
-                <button class="tab short active" id="shortBtn">Short</button>
+            
+            <div class="main-tabs">
+                <button class="main-tab active" id="pnlTab">PnL</button>
+                <button class="main-tab" id="autoTpSlTab">Auto TP/SL</button>
             </div>
-
-            <div class="leverage-control">
-                <button class="leverage-btn" id="decreaseLev">−</button>
-                <span class="leverage-value"><span id="leverageValue">6</span>x</span>
-                <button class="leverage-btn" id="increaseLev">+</button>
-            </div>
-
-            <div class="slider-container">
-                <input type="range" class="slider" id="leverage" min="1" max="125" value="6">
-                <div class="slider-labels">
-                    <span>1x</span>
-                    <span>25x</span>
-                    <span>50x</span>
-                    <span>75x</span>
-                    <span>125x</span>
+            <div class="tab-content active" id="pnlContent">
+                <div class="sub-tabs">
+                    <button class="tab" id="longBtn">Long</button>
+                    <button class="tab short active" id="shortBtn">Short</button>
                 </div>
-            </div>
 
-            <div class="max-position">Maximum position at current leverage: 5,000,000 USDT</div>
-
-            <div class="input-group">
-                <label>Entry Price</label>
-                <div class="input-wrapper">
-                    <input type="number" id="entryPrice" placeholder="0.00" step="0.0001">
-                    <span class="input-suffix">USDT</span>
+                <div class="leverage-control">
+                    <button class="leverage-btn" id="decreaseLev">−</button>
+                    <span class="leverage-value"><span id="leverageValue">6</span>x</span>
+                    <button class="leverage-btn" id="increaseLev">+</button>
                 </div>
-            </div>
 
-            <div class="input-group">
-                <label>Exit Price</label>
-                <div class="input-wrapper">
-                    <input type="number" id="exitPrice" placeholder="0.00" step="0.0001">
-                    <span class="input-suffix">USDT</span>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="leverage" min="1" max="125" value="6">
+                    <div class="slider-labels">
+                        <span>1x</span>
+                        <span>25x</span>
+                        <span>50x</span>
+                        <span>75x</span>
+                        <span>125x</span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="input-group">
-                <label>Quantity</label>
-                <div class="input-wrapper">
-                    <input type="number" id="quantity" placeholder="0.00" step="0.01">
-                    <span class="input-suffix">ASTER</span>
+                <div class="max-position">Maximum position at current leverage: 5,000,000 USDT</div>
+
+                <div class="input-group">
+                    <label>Entry Price</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="entryPrice" placeholder="0.00" step="0.0001">
+                        <span class="input-suffix">USDT</span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="input-group">
-                <label>Stop Loss Price</label>
-                <div class="input-wrapper">
-                    <input type="number" id="slPrice" placeholder="0.00" step="0.0001">
-                    <span class="input-suffix">USDT</span>
+                <div class="input-group">
+                    <label>Exit Price</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="exitPrice" placeholder="0.00" step="0.0001">
+                        <span class="input-suffix">USDT</span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="input-group">
-                <label>Total Amount (Margin)</label>
-                <div class="input-wrapper">
-                    <input type="number" id="totalAmount" placeholder="0.00" step="0.01">
-                    <span class="input-suffix">USDT</span>
+                <div class="input-group">
+                    <label>Quantity</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="quantity" placeholder="0.00" step="0.01">
+                        <span class="input-suffix">ASTER</span>
+                    </div>
                 </div>
+
+                <div class="input-group">
+                    <label>Stop Loss Price</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="slPrice" placeholder="0.00" step="0.0001">
+                        <span class="input-suffix">USDT</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Total Amount (Margin)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="totalAmount" placeholder="0.00" step="0.01">
+                        <span class="input-suffix">USDT</span>
+                    </div>
+                </div>
+
+                <button class="calculate-btn" id="calculateBtn">Calculate PnL</button>
             </div>
+            <div class="tab-content" id="autoTpSlContent">
+                <div class="sub-tabs">
+                    <button class="tab" id="longBtnAuto">Long</button>
+                    <button class="tab short active" id="shortBtnAuto">Short</button>
+                </div>
 
-            <button class="calculate-btn" id="calculateBtn">Calculate</button>
+                <div class="leverage-control">
+                    <button class="leverage-btn" id="decreaseLevAuto">−</button>
+                    <span class="leverage-value"><span id="leverageValueAuto">6</span>x</span>
+                    <button class="leverage-btn" id="increaseLevAuto">+</button>
+                </div>
 
-            <div class="section-divider"></div>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="leverageAuto" min="1" max="125" value="6">
+                    <div class="slider-labels">
+                        <span>1x</span>
+                        <span>25x</span>
+                        <span>50x</span>
+                        <span>75x</span>
+                        <span>125x</span>
+                    </div>
+                </div>
 
-            <!-- Auto Calculator Section -->
-            <div class="auto-section">
-                <div class="results-header">Auto TP/SL Calculator</div>
+                <div class="max-position">Maximum position at current leverage: 5,000,000 USDT</div>
+
+                <div class="input-group">
+                    <label>Entry Price</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="entryPriceAuto" placeholder="0.00" step="0.0001">
+                        <span class="input-suffix">USDT</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Quantity</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="quantityAuto" placeholder="0.00" step="0.01">
+                        <span class="input-suffix">ASTER</span>
+                    </div>
+                </div>
+                
+                <div class="section-divider"></div>
 
                 <div class="input-group">
                     <label>Desired ROI (%)</label>
@@ -384,13 +497,13 @@
 
                 <button class="calculate-btn" id="calculateAuto">Calculate TP/SL</button>
             </div>
-
+            <div class="save-message" id="saveMessage"></div>
+            <button class="save-btn" id="saveDataBtn">Save Data</button>
             <div class="note">
                 * See what the potential risk and reward will be in monetary terms on any given trade.
             </div>
         </div>
 
-        <!-- Right Panel - Results -->
         <div class="panel results-panel">
             <div class="results-header">Results</div>
 
@@ -474,16 +587,67 @@
     </div>
 
     <script>
-        let currentPosition = 'short';
-        let leverageVal = 6;
-
+        // --- Global State Variables ---
+        let currentPosition = 'short'; // For PnL Tab
+        let leverageVal = 6;           // For PnL Tab
+        let currentPositionAuto = 'short'; // For Auto TP/SL Tab (New)
+        let leverageValAuto = 6;           // For Auto TP/SL Tab (New)
+        
+        // --- Element IDs for PnL Tab ---
         const longBtn = document.getElementById('longBtn');
         const shortBtn = document.getElementById('shortBtn');
         const leverageSlider = document.getElementById('leverage');
         const leverageValue = document.getElementById('leverageValue');
         const decreaseLev = document.getElementById('decreaseLev');
         const increaseLev = document.getElementById('increaseLev');
-
+        
+        // --- Element IDs for Auto TP/SL Tab (New) ---
+        const longBtnAuto = document.getElementById('longBtnAuto');
+        const shortBtnAuto = document.getElementById('shortBtnAuto');
+        const leverageSliderAuto = document.getElementById('leverageAuto');
+        const leverageValueAuto = document.getElementById('leverageValueAuto');
+        const decreaseLevAuto = document.getElementById('decreaseLevAuto');
+        const increaseLevAuto = document.getElementById('increaseLevAuto');
+        
+        // --- Input Fields (Shared where possible for data persistence) ---
+        const inputFields = [
+            'entryPrice', 'exitPrice', 'quantity', 'slPrice', 'totalAmount',
+            'desiredRoi', 'maxLoss', 'leverage'
+        ];
+        
+        // --- Tab Switching Logic ---
+        const pnlTab = document.getElementById('pnlTab');
+        const autoTpSlTab = document.getElementById('autoTpSlTab');
+        const pnlContent = document.getElementById('pnlContent');
+        const autoTpSlContent = document.getElementById('autoTpSlContent');
+        
+        const entryPriceAuto = document.getElementById('entryPriceAuto');
+        const quantityAuto = document.getElementById('quantityAuto');
+        
+        function switchTab(activeTab) {
+            if (activeTab === 'pnl') {
+                pnlTab.classList.add('active');
+                autoTpSlTab.classList.remove('active');
+                pnlContent.classList.add('active');
+                autoTpSlContent.classList.remove('active');
+                // Sync entry/qty data to the auto tab's display fields
+                entryPriceAuto.value = document.getElementById('entryPrice').value;
+                quantityAuto.value = document.getElementById('quantity').value;
+            } else if (activeTab === 'autoTpSl') {
+                autoTpSlTab.classList.add('active');
+                pnlTab.classList.remove('active');
+                autoTpSlContent.classList.add('active');
+                pnlContent.classList.remove('active');
+                // Sync entry/qty data to the auto tab's display fields
+                entryPriceAuto.value = document.getElementById('entryPrice').value;
+                quantityAuto.value = document.getElementById('quantity').value;
+            }
+        }
+        
+        pnlTab.addEventListener('click', () => switchTab('pnl'));
+        autoTpSlTab.addEventListener('click', () => switchTab('autoTpSl'));
+        
+        // --- Position Buttons PnL Tab ---
         longBtn.addEventListener('click', function() {
             currentPosition = 'long';
             longBtn.classList.add('active');
@@ -496,7 +660,22 @@
             shortBtn.classList.add('active', 'short');
             longBtn.classList.remove('active');
         });
+        
+        // --- Position Buttons Auto TP/SL Tab (New) ---
+        longBtnAuto.addEventListener('click', function() {
+            currentPositionAuto = 'long';
+            longBtnAuto.classList.add('active');
+            longBtnAuto.classList.remove('short');
+            shortBtnAuto.classList.remove('active');
+        });
 
+        shortBtnAuto.addEventListener('click', function() {
+            currentPositionAuto = 'short';
+            shortBtnAuto.classList.add('active', 'short');
+            longBtnAuto.classList.remove('active');
+        });
+
+        // --- Leverage Logic PnL Tab ---
         function updateLeverage(val) {
             leverageVal = Math.max(1, Math.min(125, val));
             leverageSlider.value = leverageVal;
@@ -514,7 +693,27 @@
         increaseLev.addEventListener('click', function() {
             updateLeverage(leverageVal + 1);
         });
+        
+        // --- Leverage Logic Auto TP/SL Tab (New) ---
+        function updateLeverageAuto(val) {
+            leverageValAuto = Math.max(1, Math.min(125, val));
+            leverageSliderAuto.value = leverageValAuto;
+            leverageValueAuto.textContent = leverageValAuto;
+        }
 
+        leverageSliderAuto.addEventListener('input', function() {
+            updateLeverageAuto(parseInt(this.value));
+        });
+
+        decreaseLevAuto.addEventListener('click', function() {
+            updateLeverageAuto(leverageValAuto - 1);
+        });
+
+        increaseLevAuto.addEventListener('click', function() {
+            updateLeverageAuto(leverageValAuto + 1);
+        });
+
+        // --- Core Calculation Function ---
         function calculatePnL(entry, exit, qty, lev, position) {
             const positionValue = qty * entry;
             const initialMargin = positionValue / lev;
@@ -532,7 +731,8 @@
 
             return { positionValue, initialMargin, pnl, roi, finalBalance, isProfit: pnl >= 0 };
         }
-
+        
+        // --- PnL Calculation Button Event ---
         document.getElementById('calculateBtn').addEventListener('click', function() {
             const entryPrice = parseFloat(document.getElementById('entryPrice').value);
             const exitPrice = parseFloat(document.getElementById('exitPrice').value);
@@ -599,11 +799,17 @@
             }
 
             document.getElementById('riskReward').textContent = riskRewardRatio;
+            
+            // Hide Auto results if PnL is calculated
+            document.getElementById('autoResults').style.display = 'none';
         });
-
+        
+        // --- Auto TP/SL Calculation Button Event ---
         document.getElementById('calculateAuto').addEventListener('click', function() {
+            // Note: We pull entry/qty from the general fields, which are now synced from the PnL tab
             const entryPrice = parseFloat(document.getElementById('entryPrice').value);
             const quantity = parseFloat(document.getElementById('quantity').value);
+            
             const desiredRoi = parseFloat(document.getElementById('desiredRoi').value);
             const maxLoss = parseFloat(document.getElementById('maxLoss').value);
 
@@ -613,13 +819,14 @@
             }
 
             const positionValue = quantity * entryPrice;
-            const initialMargin = positionValue / leverageVal;
+            const initialMargin = positionValue / leverageValAuto; // Use auto leverage
             const desiredProfit = (desiredRoi / 100) * initialMargin;
             const priceChangeForProfit = desiredProfit / quantity;
             const priceChangeForLoss = maxLoss / quantity;
 
-            let tpPrice = currentPosition === 'long' ? entryPrice + priceChangeForProfit : entryPrice - priceChangeForProfit;
-            let slPrice = currentPosition === 'long' ? entryPrice - priceChangeForLoss : entryPrice + priceChangeForLoss;
+            // Use the position for the Auto tab
+            let tpPrice = currentPositionAuto === 'long' ? entryPrice + priceChangeForProfit : entryPrice - priceChangeForProfit;
+            let slPrice = currentPositionAuto === 'long' ? entryPrice - priceChangeForLoss : entryPrice + priceChangeForLoss;
 
             const riskReward = Math.abs(desiredProfit / maxLoss);
 
@@ -630,7 +837,89 @@
             document.getElementById('autoRR').textContent = riskReward.toFixed(2) + ':1';
 
             document.getElementById('autoResults').style.display = 'block';
+            
+            // Hide PnL related results when Auto TP/SL is calculated
+            document.getElementById('manualResults').style.display = 'none';
+            document.getElementById('slResults').style.display = 'none';
         });
+        
+        // --- Data Persistence Logic (Save/Load) ---
+
+        // Function to save data to localStorage
+        document.getElementById('saveDataBtn').addEventListener('click', function() {
+            const dataToSave = {};
+            
+            // Save input field values
+            inputFields.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    dataToSave[id] = element.value;
+                }
+            });
+
+            // Save state variables
+            dataToSave['currentPosition'] = currentPosition;
+            dataToSave['leverageVal'] = leverageVal;
+            dataToSave['currentPositionAuto'] = currentPositionAuto;
+            dataToSave['leverageValAuto'] = leverageValAuto;
+
+            localStorage.setItem('futuresCalculatorData', JSON.stringify(dataToSave));
+            
+            // Show success message
+            const saveMessage = document.getElementById('saveMessage');
+            saveMessage.textContent = 'Data saved successfully!';
+            setTimeout(() => {
+                saveMessage.textContent = '';
+            }, 3000);
+        });
+        
+        // Function to load data from localStorage
+        function loadSavedData() {
+            const savedData = localStorage.getItem('futuresCalculatorData');
+            if (!savedData) return;
+
+            const data = JSON.parse(savedData);
+
+            // Load input field values
+            inputFields.forEach(id => {
+                const element = document.getElementById(id);
+                if (element && data[id] !== undefined) {
+                    element.value = data[id];
+                }
+            });
+
+            // Load state variables and update UI
+            if (data.leverageVal !== undefined) {
+                updateLeverage(parseInt(data.leverageVal));
+            }
+            if (data.currentPosition === 'long') {
+                longBtn.click();
+            } else if (data.currentPosition === 'short') {
+                shortBtn.click();
+            }
+            
+            // Load Auto TP/SL state variables and update UI
+            if (data.leverageValAuto !== undefined) {
+                updateLeverageAuto(parseInt(data.leverageValAuto));
+            }
+            if (data.currentPositionAuto === 'long') {
+                longBtnAuto.click();
+            } else if (data.currentPositionAuto === 'short') {
+                shortBtnAuto.click();
+            }
+            
+            // Sync the Entry Price and Quantity to the display fields on the Auto Tab
+            entryPriceAuto.value = document.getElementById('entryPrice').value;
+            quantityAuto.value = document.getElementById('quantity').value;
+        }
+
+        // Load data when the page loads
+        document.addEventListener('DOMContentLoaded', loadSavedData);
+        
+        // Initial sync of the auto tab fields on load (before data load)
+        entryPriceAuto.value = document.getElementById('entryPrice').value;
+        quantityAuto.value = document.getElementById('quantity').value;
+        
     </script>
 </body>
 </html>
