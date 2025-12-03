@@ -350,6 +350,14 @@
                 </div>
             </div>
 
+            <div class="input-group">
+                <label>Total Amount (Margin)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="totalAmount" placeholder="0.00" step="0.01">
+                    <span class="input-suffix">USDT</span>
+                </div>
+            </div>
+
             <button class="calculate-btn" id="calculateBtn">Calculate</button>
 
             <div class="section-divider"></div>
@@ -407,6 +415,14 @@
                     <span class="result-label">Final Balance</span>
                     <span class="result-value" id="finalBalance">--USDT</span>
                 </div>
+                <div class="result-row">
+                    <span class="result-label">Liquidation Price</span>
+                    <span class="result-value loss" id="liquidationPrice">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Risk/Reward Ratio</span>
+                    <span class="result-value" id="riskReward">--</span>
+                </div>
             </div>
 
             <div id="slResults" style="display: none;">
@@ -423,6 +439,10 @@
                 <div class="result-row">
                     <span class="result-label">ROI</span>
                     <span class="result-value loss" id="slRoi">--%</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Final Balance</span>
+                    <span class="result-value loss" id="slFinalBalance">--USDT</span>
                 </div>
             </div>
 
@@ -518,6 +538,7 @@
             const exitPrice = parseFloat(document.getElementById('exitPrice').value);
             const quantity = parseFloat(document.getElementById('quantity').value);
             const slPrice = parseFloat(document.getElementById('slPrice').value);
+            const totalAmount = parseFloat(document.getElementById('totalAmount').value);
 
             if (!entryPrice || !exitPrice || !quantity) {
                 alert('Please fill in Entry Price, Exit Price, and Quantity');
@@ -526,24 +547,58 @@
 
             const result = calculatePnL(entryPrice, exitPrice, quantity, leverageVal, currentPosition);
 
+            // Calculate final balance correctly
+            const accountBalance = totalAmount || result.initialMargin;
+            const finalBalance = accountBalance + result.pnl;
+
             document.getElementById('initialMargin').textContent = result.initialMargin.toFixed(2) + 'USDT';
             document.getElementById('pnlValue').textContent = (result.isProfit ? '+' : '') + result.pnl.toFixed(2) + 'USDT';
             document.getElementById('pnlValue').className = 'result-value ' + (result.isProfit ? 'profit' : 'loss');
             document.getElementById('roi').textContent = result.roi.toFixed(2) + '%';
             document.getElementById('roi').className = 'result-value ' + (result.isProfit ? 'profit' : 'loss');
             document.getElementById('positionValue').textContent = result.positionValue.toFixed(2) + 'USDT';
-            document.getElementById('finalBalance').textContent = result.finalBalance.toFixed(2) + 'USDT';
-            document.getElementById('finalBalance').className = 'result-value ' + (result.isProfit ? 'profit' : 'loss');
+            document.getElementById('finalBalance').textContent = finalBalance.toFixed(2) + 'USDT';
+            document.getElementById('finalBalance').className = 'result-value ' + (finalBalance > accountBalance ? 'profit' : 'loss');
 
+            // Calculate liquidation price
+            const marginUsed = totalAmount || result.initialMargin;
+            const maintenanceMarginRate = 0.004; // 0.4% for most pairs
+            
+            let liquidationPrice;
+            if (currentPosition === 'long') {
+                // Long: Liq Price = Entry Price × (1 - (Initial Margin - Maintenance Margin) / Position Size)
+                liquidationPrice = entryPrice * (1 - (marginUsed * (1 - maintenanceMarginRate)) / result.positionValue);
+            } else {
+                // Short: Liq Price = Entry Price × (1 + (Initial Margin - Maintenance Margin) / Position Size)
+                liquidationPrice = entryPrice * (1 + (marginUsed * (1 - maintenanceMarginRate)) / result.positionValue);
+            }
+
+            document.getElementById('liquidationPrice').textContent = liquidationPrice.toFixed(4) + 'USDT';
+
+            // Calculate Risk/Reward Ratio
+            let riskRewardRatio = '--';
             if (slPrice) {
                 const slResult = calculatePnL(entryPrice, slPrice, quantity, leverageVal, currentPosition);
+                const slFinalBalance = accountBalance + slResult.pnl;
+                
+                // Risk is the potential loss, Reward is the potential profit
+                const risk = Math.abs(slResult.pnl);
+                const reward = Math.abs(result.pnl);
+                
+                if (risk > 0) {
+                    riskRewardRatio = (reward / risk).toFixed(2) + ':1';
+                }
+
                 document.getElementById('slPriceDisplay').textContent = slPrice.toFixed(4) + 'USDT';
                 document.getElementById('slLoss').textContent = slResult.pnl.toFixed(2) + 'USDT';
                 document.getElementById('slRoi').textContent = slResult.roi.toFixed(2) + '%';
+                document.getElementById('slFinalBalance').textContent = slFinalBalance.toFixed(2) + 'USDT';
                 document.getElementById('slResults').style.display = 'block';
             } else {
                 document.getElementById('slResults').style.display = 'none';
             }
+
+            document.getElementById('riskReward').textContent = riskRewardRatio;
         });
 
         document.getElementById('calculateAuto').addEventListener('click', function() {
