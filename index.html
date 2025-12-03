@@ -47,7 +47,34 @@
             color: #EAECEF;
         }
 
-        /* Updated Tabs for PnL and Auto TP/SL */
+        .coin-selector {
+            margin-bottom: 20px;
+        }
+
+        .coin-selector label {
+            display: block;
+            font-size: 12px;
+            color: #848E9C;
+            margin-bottom: 8px;
+        }
+
+        .coin-selector select {
+            width: 100%;
+            padding: 10px 12px;
+            background: #2B3139;
+            border: 1px solid #2B3139;
+            border-radius: 4px;
+            color: #EAECEF;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .coin-selector select:focus {
+            outline: none;
+            border-color: #FCD535;
+        }
+
         .main-tabs {
             display: flex;
             margin-bottom: 20px;
@@ -64,14 +91,13 @@
             font-weight: 500;
             transition: all 0.2s;
             border-bottom: 2px solid transparent;
-            margin-bottom: -1px; /* To hide the bottom border gap */
+            margin-bottom: -1px;
         }
 
         .main-tab.active {
             color: #FCD535;
             border-bottom: 2px solid #FCD535;
         }
-        /* End of Main Tabs */
 
         .sub-tabs {
             display: flex;
@@ -227,11 +253,10 @@
             font-size: 13px;
         }
 
-        /* Styling for Save Button - Yellow */
         .save-btn {
             width: 100%;
             padding: 12px;
-            background: #FCD535; /* Binance yellow */
+            background: #FCD535;
             border: none;
             border-radius: 4px;
             color: #1E2026;
@@ -239,18 +264,17 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            margin-top: 20px; /* Add some space above */
+            margin-top: 20px;
         }
 
         .save-btn:hover {
             background: #FFEB89;
         }
 
-        /* Styling for Calculate Button - Blue */
         .calculate-btn {
             width: 100%;
             padding: 12px;
-            background: #474D57; /* Darker/Neutral for PnL */
+            background: #474D57;
             border: none;
             border-radius: 4px;
             color: #EAECEF;
@@ -263,10 +287,9 @@
         .calculate-btn:hover {
             background: #5A606A;
         }
-        
-        /* New style for the primary calculate button in Auto TP/SL section */
+
         #calculateAuto {
-            background: #18A0FB; /* A strong blue, similar to Binance's primary action color */
+            background: #18A0FB;
             color: #EAECEF;
         }
 
@@ -331,7 +354,6 @@
             line-height: 1.5;
         }
 
-        /* New styles for tab content */
         .tab-content {
             display: none;
         }
@@ -339,9 +361,7 @@
         .tab-content.active {
             display: block;
         }
-        /* End of new styles */
 
-        /* Added style for the save message */
         .save-message {
             text-align: center;
             font-size: 12px;
@@ -349,7 +369,6 @@
             margin-top: 10px;
             height: 15px;
         }
-
 
         @media (max-width: 900px) {
             .container {
@@ -364,11 +383,123 @@
             <div class="header">
                 <h2>PnL Calculator</h2>
             </div>
+
+            <div class="coin-selector">
+                <label>Select Trading Pair</label>
+                <select id="coinSelect">
+                    <option value="ASTER">ASTERUSDT</option>
+                    <option value="BTC">BTCUSDT</option>
+                    <option value="ETH">ETHUSDT</option>
+                    <option value="BNB">BNBUSDT</option>
+                    <option value="SOL">SOLUSDT</option>
+                    <option value="XRP">XRPUSDT</option>
+                    <option value="DOGE">DOGEUSDT</option>
+                    <option value="ADA">ADAUSDT</option>
+                    <option value="AVAX">AVAXUSDT</option>
+                    <option value="LINK">LINKUSDT</option>
+                    <option value="DOT">DOTUSDT</option>
+                    <option value="MATIC">MATICUSDT</option>
+                    <option value="UNI">UNIUSDT</option>
+                    <option value="LTC">LTCUSDT</option>
+                    <option value="BCH">BCHUSDT</option>
+                    <option value="ATOM">ATOMUSDT</option>
+                    <option value="FIL">FILUSDT</option>
+                    <option value="TRX">TRXUSDT</option>
+                    <option value="ETC">ETCUSDT</option>
+                    <option value="XLM">XLMUSDT</option>
+                    <option value="ICP">ICPUSDT</option>
+                    <option value="APT">APTUSDT</option>
+                    <option value="ARB">ARBUSDT</option>
+                    <option value="OP">OPUSDT</option>
+                    <option value="INJ">INJUSDT</option>
+                    <option value="SUI">SUIUSDT</option>
+                    <option value="PEPE">1000PEPEUSDT</option>
+                    <option value="SHIB">1000SHIBUSDT</option>
+                    <option value="BONK">1000BONKUSDT</option>
+                    <option value="WIF">WIFUSDT</option>
+                    <option value="FLOKI">1000FLOKIUSDT</option>
+                    <option value="SEI">SEIUSDT</option>
+                    <option value="TIA">TIAUSDT</option>
+                    <option value="JUP">JUPUSDT</option>
+                    <option value="STRK">STRKUSDT</option>
+                    <option value="PYTH">PYTHUSDT</option>
+                    <option value="DYM">DYMUSDT</option>
+                    <option value="MANTA">MANTAUSDT</option>
+                    <option value="ORDI">ORDIUSDT</option>
+                    <option value="STX">STXUSDT</option>
+                    <option value="RNDR">RENDERUSDT</option>
+                    <option value="NEAR">NEARUSDT</option>
+                    <option value="FET">FETUSDT</option>
+                    <option value="GRT">GRTUSDT</option>
+                    <option value="RUNE">RUNEUSDT</option>
+                    <option value="AAVE">AAVEUSDT</option>
+                    <option value="IMX">IMXUSDT</option>
+                    <option value="THETA">THETAUSDT</option>
+                    <option value="AXS">AXSUSDT</option>
+                    <option value="SAND">SANDUSDT</option>
+                    <option value="MANA">MANAUSDT</option>
+                    <option value="ENJ">ENJUSDT</option>
+                    <option value="CHZ">CHZUSDT</option>
+                    <option value="GALA">GALAUSDT</option>
+                    <option value="APE">APEUSDT</option>
+                    <option value="GMT">GMTUSDT</option>
+                    <option value="WLD">WLDUSDT</option>
+                    <option value="TON">TONUSDT</option>
+                    <option value="NOT">NOTUSDT</option>
+                    <option value="DOGS">DOGSUSDT</option>
+                    <option value="HMSTR">HMSTRUSDT</option>
+                    <option value="CATI">CATIUSDT</option>
+                    <option value="NEIRO">NEIROUSDT</option>
+                    <option value="TURBO">TURBOUSDT</option>
+                    <option value="BOME">BOMEUSDT</option>
+                    <option value="ENA">ENAUSDT</option>
+                    <option value="ETHFI">ETHFIUSDT</option>
+                    <option value="REZ">REZUSDT</option>
+                    <option value="BB">BBUSDT</option>
+                    <option value="IO">IOUSDT</option>
+                    <option value="ZK">ZKUSDT</option>
+                    <option value="LISTA">LISTAUSDT</option>
+                    <option value="ZRO">ZROUSDT</option>
+                    <option value="BANANA">BANANAUSDT</option>
+                    <option value="RENDER">RENDERUSDT</option>
+                    <option value="G">GUSDT</option>
+                    <option value="POPCAT">POPCATUSDT</option>
+                    <option value="MEW">MEWUSDT</option>
+                    <option value="BRETT">BRETTUSDT</option>
+                    <option value="SUN">SUNUSDT</option>
+                    <option value="EIGEN">EIGENUSDT</option>
+                    <option value="GOAT">GOATUSDT</option>
+                    <option value="SCR">SCRUSDT</option>
+                    <option value="GRASS">GRASSUSDT</option>
+                    <option value="ACT">ACTUSDT</option>
+                    <option value="PNUT">PNUTUSDT</option>
+                    <option value="BAN">BANUSDT</option>
+                    <option value="MOVE">MOVEUSDT</option>
+                    <option value="VIRTUAL">VIRTUALUSDT</option>
+                    <option value="ME">MEUSDT</option>
+                    <option value="PENGU">PENGUUSDT</option>
+                    <option value="LUMIA">LUMIAUSDT</option>
+                    <option value="USUAL">USUALUSDT</option>
+                    <option value="AIXBT">AIXBTUSDT</option>
+                    <option value="COOKIE">COOKIEUSDT</option>
+                    <option value="BIO">BIOUSDT</option>
+                    <option value="SONIC">SONICUSDT</option>
+                    <option value="TRUMP">TRUMPUSDT</option>
+                    <option value="MELANIA">MELANIAUSDT</option>
+                    <option value="LAYER">LAYERUSDT</option>
+                    <option value="VIC">VICUSDT</option>
+                    <option value="DEEP">DEEPUSDT</option>
+                    <option value="HYPE">HYPEUSDT</option>
+                    <option value="PUFFER">PUFFERUSDT</option>
+                    <option value="TAIKO">TAIKOUSDT</option>
+                </select>
+            </div>
             
             <div class="main-tabs">
                 <button class="main-tab active" id="pnlTab">PnL</button>
                 <button class="main-tab" id="autoTpSlTab">Auto TP/SL</button>
             </div>
+
             <div class="tab-content active" id="pnlContent">
                 <div class="sub-tabs">
                     <button class="tab" id="longBtn">Long</button>
@@ -414,7 +545,7 @@
                     <label>Quantity</label>
                     <div class="input-wrapper">
                         <input type="number" id="quantity" placeholder="0.00" step="0.01">
-                        <span class="input-suffix">ASTER</span>
+                        <span class="input-suffix" id="coinSuffix">ASTER</span>
                     </div>
                 </div>
 
@@ -436,6 +567,7 @@
 
                 <button class="calculate-btn" id="calculateBtn">Calculate PnL</button>
             </div>
+
             <div class="tab-content" id="autoTpSlContent">
                 <div class="sub-tabs">
                     <button class="tab" id="longBtnAuto">Long</button>
@@ -473,7 +605,7 @@
                     <label>Quantity</label>
                     <div class="input-wrapper">
                         <input type="number" id="quantityAuto" placeholder="0.00" step="0.01">
-                        <span class="input-suffix">ASTER</span>
+                        <span class="input-suffix" id="coinSuffixAuto">ASTER</span>
                     </div>
                 </div>
                 
@@ -497,6 +629,7 @@
 
                 <button class="calculate-btn" id="calculateAuto">Calculate TP/SL</button>
             </div>
+
             <div class="save-message" id="saveMessage"></div>
             <button class="save-btn" id="saveDataBtn">Save Data</button>
             <div class="note">
@@ -587,13 +720,12 @@
     </div>
 
     <script>
-        // --- Global State Variables ---
-        let currentPosition = 'short'; // For PnL Tab
-        let leverageVal = 6;           // For PnL Tab
-        let currentPositionAuto = 'short'; // For Auto TP/SL Tab (New)
-        let leverageValAuto = 6;           // For Auto TP/SL Tab (New)
+        let currentPosition = 'short';
+        let leverageVal = 6;
+        let currentPositionAuto = 'short';
+        let leverageValAuto = 6;
+        let selectedCoin = 'ASTER';
         
-        // --- Element IDs for PnL Tab ---
         const longBtn = document.getElementById('longBtn');
         const shortBtn = document.getElementById('shortBtn');
         const leverageSlider = document.getElementById('leverage');
@@ -601,7 +733,6 @@
         const decreaseLev = document.getElementById('decreaseLev');
         const increaseLev = document.getElementById('increaseLev');
         
-        // --- Element IDs for Auto TP/SL Tab (New) ---
         const longBtnAuto = document.getElementById('longBtnAuto');
         const shortBtnAuto = document.getElementById('shortBtnAuto');
         const leverageSliderAuto = document.getElementById('leverageAuto');
@@ -609,13 +740,21 @@
         const decreaseLevAuto = document.getElementById('decreaseLevAuto');
         const increaseLevAuto = document.getElementById('increaseLevAuto');
         
-        // --- Input Fields (Shared where possible for data persistence) ---
+        const coinSelect = document.getElementById('coinSelect');
+        const coinSuffix = document.getElementById('coinSuffix');
+        const coinSuffixAuto = document.getElementById('coinSuffixAuto');
+        
+        coinSelect.addEventListener('change', function() {
+            selectedCoin = this.value;
+            coinSuffix.textContent = selectedCoin;
+            coinSuffixAuto.textContent = selectedCoin;
+        });
+        
         const inputFields = [
             'entryPrice', 'exitPrice', 'quantity', 'slPrice', 'totalAmount',
             'desiredRoi', 'maxLoss', 'leverage'
         ];
         
-        // --- Tab Switching Logic ---
         const pnlTab = document.getElementById('pnlTab');
         const autoTpSlTab = document.getElementById('autoTpSlTab');
         const pnlContent = document.getElementById('pnlContent');
@@ -630,7 +769,6 @@
                 autoTpSlTab.classList.remove('active');
                 pnlContent.classList.add('active');
                 autoTpSlContent.classList.remove('active');
-                // Sync entry/qty data to the auto tab's display fields
                 entryPriceAuto.value = document.getElementById('entryPrice').value;
                 quantityAuto.value = document.getElementById('quantity').value;
             } else if (activeTab === 'autoTpSl') {
@@ -638,7 +776,6 @@
                 pnlTab.classList.remove('active');
                 autoTpSlContent.classList.add('active');
                 pnlContent.classList.remove('active');
-                // Sync entry/qty data to the auto tab's display fields
                 entryPriceAuto.value = document.getElementById('entryPrice').value;
                 quantityAuto.value = document.getElementById('quantity').value;
             }
@@ -647,7 +784,6 @@
         pnlTab.addEventListener('click', () => switchTab('pnl'));
         autoTpSlTab.addEventListener('click', () => switchTab('autoTpSl'));
         
-        // --- Position Buttons PnL Tab ---
         longBtn.addEventListener('click', function() {
             currentPosition = 'long';
             longBtn.classList.add('active');
@@ -661,7 +797,6 @@
             longBtn.classList.remove('active');
         });
         
-        // --- Position Buttons Auto TP/SL Tab (New) ---
         longBtnAuto.addEventListener('click', function() {
             currentPositionAuto = 'long';
             longBtnAuto.classList.add('active');
@@ -675,7 +810,6 @@
             longBtnAuto.classList.remove('active');
         });
 
-        // --- Leverage Logic PnL Tab ---
         function updateLeverage(val) {
             leverageVal = Math.max(1, Math.min(125, val));
             leverageSlider.value = leverageVal;
@@ -694,7 +828,6 @@
             updateLeverage(leverageVal + 1);
         });
         
-        // --- Leverage Logic Auto TP/SL Tab (New) ---
         function updateLeverageAuto(val) {
             leverageValAuto = Math.max(1, Math.min(125, val));
             leverageSliderAuto.value = leverageValAuto;
@@ -713,7 +846,6 @@
             updateLeverageAuto(leverageValAuto + 1);
         });
 
-        // --- Core Calculation Function ---
         function calculatePnL(entry, exit, qty, lev, position) {
             const positionValue = qty * entry;
             const initialMargin = positionValue / lev;
@@ -732,7 +864,6 @@
             return { positionValue, initialMargin, pnl, roi, finalBalance, isProfit: pnl >= 0 };
         }
         
-        // --- PnL Calculation Button Event ---
         document.getElementById('calculateBtn').addEventListener('click', function() {
             const entryPrice = parseFloat(document.getElementById('entryPrice').value);
             const exitPrice = parseFloat(document.getElementById('exitPrice').value);
@@ -747,7 +878,6 @@
 
             const result = calculatePnL(entryPrice, exitPrice, quantity, leverageVal, currentPosition);
 
-            // Calculate final balance correctly
             const accountBalance = totalAmount || result.initialMargin;
             const finalBalance = accountBalance + result.pnl;
 
@@ -760,28 +890,23 @@
             document.getElementById('finalBalance').textContent = finalBalance.toFixed(2) + 'USDT';
             document.getElementById('finalBalance').className = 'result-value ' + (finalBalance > accountBalance ? 'profit' : 'loss');
 
-            // Calculate liquidation price
             const marginUsed = totalAmount || result.initialMargin;
-            const maintenanceMarginRate = 0.004; // 0.4% for most pairs
+            const maintenanceMarginRate = 0.004;
             
             let liquidationPrice;
             if (currentPosition === 'long') {
-                // Long: Liq Price = Entry Price × (1 - (Initial Margin - Maintenance Margin) / Position Size)
                 liquidationPrice = entryPrice * (1 - (marginUsed * (1 - maintenanceMarginRate)) / result.positionValue);
             } else {
-                // Short: Liq Price = Entry Price × (1 + (Initial Margin - Maintenance Margin) / Position Size)
                 liquidationPrice = entryPrice * (1 + (marginUsed * (1 - maintenanceMarginRate)) / result.positionValue);
             }
 
             document.getElementById('liquidationPrice').textContent = liquidationPrice.toFixed(4) + 'USDT';
 
-            // Calculate Risk/Reward Ratio
             let riskRewardRatio = '--';
             if (slPrice) {
                 const slResult = calculatePnL(entryPrice, slPrice, quantity, leverageVal, currentPosition);
                 const slFinalBalance = accountBalance + slResult.pnl;
                 
-                // Risk is the potential loss, Reward is the potential profit
                 const risk = Math.abs(slResult.pnl);
                 const reward = Math.abs(result.pnl);
                 
@@ -799,14 +924,11 @@
             }
 
             document.getElementById('riskReward').textContent = riskRewardRatio;
-            
-            // Hide Auto results if PnL is calculated
+            document.getElementById('manualResults').style.display = 'block';
             document.getElementById('autoResults').style.display = 'none';
         });
         
-        // --- Auto TP/SL Calculation Button Event ---
         document.getElementById('calculateAuto').addEventListener('click', function() {
-            // Note: We pull entry/qty from the general fields, which are now synced from the PnL tab
             const entryPrice = parseFloat(document.getElementById('entryPrice').value);
             const quantity = parseFloat(document.getElementById('quantity').value);
             
@@ -819,12 +941,11 @@
             }
 
             const positionValue = quantity * entryPrice;
-            const initialMargin = positionValue / leverageValAuto; // Use auto leverage
+            const initialMargin = positionValue / leverageValAuto;
             const desiredProfit = (desiredRoi / 100) * initialMargin;
             const priceChangeForProfit = desiredProfit / quantity;
             const priceChangeForLoss = maxLoss / quantity;
 
-            // Use the position for the Auto tab
             let tpPrice = currentPositionAuto === 'long' ? entryPrice + priceChangeForProfit : entryPrice - priceChangeForProfit;
             let slPrice = currentPositionAuto === 'long' ? entryPrice - priceChangeForLoss : entryPrice + priceChangeForLoss;
 
@@ -837,19 +958,13 @@
             document.getElementById('autoRR').textContent = riskReward.toFixed(2) + ':1';
 
             document.getElementById('autoResults').style.display = 'block';
-            
-            // Hide PnL related results when Auto TP/SL is calculated
             document.getElementById('manualResults').style.display = 'none';
             document.getElementById('slResults').style.display = 'none';
         });
         
-        // --- Data Persistence Logic (Save/Load) ---
-
-        // Function to save data to localStorage
         document.getElementById('saveDataBtn').addEventListener('click', function() {
             const dataToSave = {};
             
-            // Save input field values
             inputFields.forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
@@ -857,15 +972,14 @@
                 }
             });
 
-            // Save state variables
             dataToSave['currentPosition'] = currentPosition;
             dataToSave['leverageVal'] = leverageVal;
             dataToSave['currentPositionAuto'] = currentPositionAuto;
             dataToSave['leverageValAuto'] = leverageValAuto;
+            dataToSave['selectedCoin'] = selectedCoin;
 
             localStorage.setItem('futuresCalculatorData', JSON.stringify(dataToSave));
             
-            // Show success message
             const saveMessage = document.getElementById('saveMessage');
             saveMessage.textContent = 'Data saved successfully!';
             setTimeout(() => {
@@ -873,14 +987,12 @@
             }, 3000);
         });
         
-        // Function to load data from localStorage
         function loadSavedData() {
             const savedData = localStorage.getItem('futuresCalculatorData');
             if (!savedData) return;
 
             const data = JSON.parse(savedData);
 
-            // Load input field values
             inputFields.forEach(id => {
                 const element = document.getElementById(id);
                 if (element && data[id] !== undefined) {
@@ -888,7 +1000,6 @@
                 }
             });
 
-            // Load state variables and update UI
             if (data.leverageVal !== undefined) {
                 updateLeverage(parseInt(data.leverageVal));
             }
@@ -898,7 +1009,6 @@
                 shortBtn.click();
             }
             
-            // Load Auto TP/SL state variables and update UI
             if (data.leverageValAuto !== undefined) {
                 updateLeverageAuto(parseInt(data.leverageValAuto));
             }
@@ -908,18 +1018,21 @@
                 shortBtnAuto.click();
             }
             
-            // Sync the Entry Price and Quantity to the display fields on the Auto Tab
+            if (data.selectedCoin) {
+                selectedCoin = data.selectedCoin;
+                coinSelect.value = data.selectedCoin;
+                coinSuffix.textContent = data.selectedCoin;
+                coinSuffixAuto.textContent = data.selectedCoin;
+            }
+            
             entryPriceAuto.value = document.getElementById('entryPrice').value;
             quantityAuto.value = document.getElementById('quantity').value;
         }
 
-        // Load data when the page loads
         document.addEventListener('DOMContentLoaded', loadSavedData);
         
-        // Initial sync of the auto tab fields on load (before data load)
         entryPriceAuto.value = document.getElementById('entryPrice').value;
         quantityAuto.value = document.getElementById('quantity').value;
-        
     </script>
 </body>
 </html>
