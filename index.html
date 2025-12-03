@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Futures PnL Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0B0E11;
+            min-height: 100vh;
+            padding: 20px;
+            color: #EAECEF;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+            background: #0B0E11;
+        }
+
+        .panel {
+            background: #1E2026;
+            padding: 24px;
+            border-radius: 4px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            font-size: 16px;
+            font-weight: 500;
+            color: #EAECEF;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: #2B3139;
+            padding: 2px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: #848E9C;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: #0ECB81;
+            color: #0B0E11;
+        }
+
+        .tab.short.active {
+            background: #F6465D;
+            color: #FFFFFF;
+        }
+
+        .leverage-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .leverage-btn {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: 1px solid #2B3139;
+            color: #848E9C;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .leverage-btn:hover {
+            border-color: #FCD535;
+            color: #FCD535;
+        }
+
+        .leverage-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #EAECEF;
+        }
+
+        .slider-container {
+            margin: 16px 0 24px 0;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #474D57;
+            margin-top: 8px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 4px;
+            background: #2B3139;
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #FCD535;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #FCD535;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .max-position {
+            font-size: 11px;
+            color: #474D57;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: #848E9C;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 10px 50px 10px 12px;
+            background: #2B3139;
+            border: 1px solid #2B3139;
+            border-radius: 4px;
+            color: #EAECEF;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #FCD535;
+        }
+
+        .input-wrapper input::placeholder {
+            color: #474D57;
+        }
+
+        .input-suffix {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #848E9C;
+            font-size: 13px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 12px;
+            background: #806B38;
+            border: none;
+            border-radius: 4px;
+            color: #EAECEF;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calculate-btn:hover {
+            background: #8f7840;
+        }
+
+        .results-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .results-header {
+            font-size: 14px;
+            font-weight: 500;
+            color: #EAECEF;
+            margin-bottom: 20px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #2B3139;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-size: 13px;
+            color: #848E9C;
+        }
+
+        .result-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #EAECEF;
+            text-align: right;
+        }
+
+        .result-value.profit {
+            color: #0ECB81;
+        }
+
+        .result-value.loss {
+            color: #F6465D;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: #2B3139;
+            margin: 20px 0;
+        }
+
+        .auto-section {
+            margin-top: 20px;
+        }
+
+        .note {
+            font-size: 11px;
+            color: #474D57;
+            margin-top: 16px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel - Calculator -->
+        <div class="panel">
+            <div class="header">
+                <h2>PnL Calculator</h2>
+            </div>
+
+            <div class="tabs">
+                <button class="tab" id="longBtn">Long</button>
+                <button class="tab short active" id="shortBtn">Short</button>
+            </div>
+
+            <div class="leverage-control">
+                <button class="leverage-btn" id="decreaseLev">−</button>
+                <span class="leverage-value"><span id="leverageValue">6</span>x</span>
+                <button class="leverage-btn" id="increaseLev">+</button>
+            </div>
+
+            <div class="slider-container">
+                <input type="range" class="slider" id="leverage" min="1" max="125" value="6">
+                <div class="slider-labels">
+                    <span>1x</span>
+                    <span>25x</span>
+                    <span>50x</span>
+                    <span>75x</span>
+                    <span>125x</span>
+                </div>
+            </div>
+
+            <div class="max-position">Maximum position at current leverage: 5,000,000 USDT</div>
+
+            <div class="input-group">
+                <label>Entry Price</label>
+                <div class="input-wrapper">
+                    <input type="number" id="entryPrice" placeholder="0.00" step="0.0001">
+                    <span class="input-suffix">USDT</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Exit Price</label>
+                <div class="input-wrapper">
+                    <input type="number" id="exitPrice" placeholder="0.00" step="0.0001">
+                    <span class="input-suffix">USDT</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Quantity</label>
+                <div class="input-wrapper">
+                    <input type="number" id="quantity" placeholder="0.00" step="0.01">
+                    <span class="input-suffix">ASTER</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Stop Loss Price</label>
+                <div class="input-wrapper">
+                    <input type="number" id="slPrice" placeholder="0.00" step="0.0001">
+                    <span class="input-suffix">USDT</span>
+                </div>
+            </div>
+
+            <button class="calculate-btn" id="calculateBtn">Calculate</button>
+
+            <div class="section-divider"></div>
+
+            <!-- Auto Calculator Section -->
+            <div class="auto-section">
+                <div class="results-header">Auto TP/SL Calculator</div>
+
+                <div class="input-group">
+                    <label>Desired ROI (%)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="desiredRoi" placeholder="50" step="0.1">
+                        <span class="input-suffix">%</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Maximum Loss</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="maxLoss" placeholder="2.0" step="0.01">
+                        <span class="input-suffix">USDT</span>
+                    </div>
+                </div>
+
+                <button class="calculate-btn" id="calculateAuto">Calculate TP/SL</button>
+            </div>
+
+            <div class="note">
+                * See what the potential risk and reward will be in monetary terms on any given trade.
+            </div>
+        </div>
+
+        <!-- Right Panel - Results -->
+        <div class="panel results-panel">
+            <div class="results-header">Results</div>
+
+            <div id="manualResults">
+                <div class="result-row">
+                    <span class="result-label">Initial Margin</span>
+                    <span class="result-value" id="initialMargin">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">PnL</span>
+                    <span class="result-value" id="pnlValue">0.00USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">ROI</span>
+                    <span class="result-value" id="roi">0.00%</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Position Value</span>
+                    <span class="result-value" id="positionValue">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Final Balance</span>
+                    <span class="result-value" id="finalBalance">--USDT</span>
+                </div>
+            </div>
+
+            <div id="slResults" style="display: none;">
+                <div class="section-divider"></div>
+                <div class="results-header" style="font-size: 13px; margin-bottom: 12px;">Stop Loss Impact</div>
+                <div class="result-row">
+                    <span class="result-label">SL Price</span>
+                    <span class="result-value" id="slPriceDisplay">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Loss if hit</span>
+                    <span class="result-value loss" id="slLoss">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">ROI</span>
+                    <span class="result-value loss" id="slRoi">--%</span>
+                </div>
+            </div>
+
+            <div id="autoResults" style="display: none;">
+                <div class="section-divider"></div>
+                <div class="results-header" style="font-size: 13px; margin-bottom: 12px;">Recommended Prices</div>
+                <div class="result-row">
+                    <span class="result-label">Take Profit Price</span>
+                    <span class="result-value profit" id="autoTpPrice">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Stop Loss Price</span>
+                    <span class="result-value loss" id="autoSlPrice">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Expected Profit</span>
+                    <span class="result-value profit" id="autoProfit">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Maximum Loss</span>
+                    <span class="result-value loss" id="autoLoss">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Risk/Reward</span>
+                    <span class="result-value" id="autoRR">--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPosition = 'short';
+        let leverageVal = 6;
+
+        const longBtn = document.getElementById('longBtn');
+        const shortBtn = document.getElementById('shortBtn');
+        const leverageSlider = document.getElementById('leverage');
+        const leverageValue = document.getElementById('leverageValue');
+        const decreaseLev = document.getElementById('decreaseLev');
+        const increaseLev = document.getElementById('increaseLev');
+
+        longBtn.addEventListener('click', function() {
+            currentPosition = 'long';
+            longBtn.classList.add('active');
+            longBtn.classList.remove('short');
+            shortBtn.classList.remove('active');
+        });
+
+        shortBtn.addEventListener('click', function() {
+            currentPosition = 'short';
+            shortBtn.classList.add('active', 'short');
+            longBtn.classList.remove('active');
+        });
+
+        function updateLeverage(val) {
+            leverageVal = Math.max(1, Math.min(125, val));
+            leverageSlider.value = leverageVal;
+            leverageValue.textContent = leverageVal;
+        }
+
+        leverageSlider.addEventListener('input', function() {
+            updateLeverage(parseInt(this.value));
+        });
+
+        decreaseLev.addEventListener('click', function() {
+            updateLeverage(leverageVal - 1);
+        });
+
+        increaseLev.addEventListener('click', function() {
+            updateLeverage(leverageVal + 1);
+        });
+
+        function calculatePnL(entry, exit, qty, lev, position) {
+            const positionValue = qty * entry;
+            const initialMargin = positionValue / lev;
+
+            let priceDiff;
+            if (position === 'long') {
+                priceDiff = exit - entry;
+            } else {
+                priceDiff = entry - exit;
+            }
+
+            const pnl = qty * priceDiff;
+            const roi = (pnl / initialMargin) * 100;
+            const finalBalance = initialMargin + pnl;
+
+            return { positionValue, initialMargin, pnl, roi, finalBalance, isProfit: pnl >= 0 };
+        }
+
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const entryPrice = parseFloat(document.getElementById('entryPrice').value);
+            const exitPrice = parseFloat(document.getElementById('exitPrice').value);
+            const quantity = parseFloat(document.getElementById('quantity').value);
+            const slPrice = parseFloat(document.getElementById('slPrice').value);
+
+            if (!entryPrice || !exitPrice || !quantity) {
+                alert('Please fill in Entry Price, Exit Price, and Quantity');
+                return;
+            }
+
+            const result = calculatePnL(entryPrice, exitPrice, quantity, leverageVal, currentPosition);
+
+            document.getElementById('initialMargin').textContent = result.initialMargin.toFixed(2) + 'USDT';
+            document.getElementById('pnlValue').textContent = (result.isProfit ? '+' : '') + result.pnl.toFixed(2) + 'USDT';
+            document.getElementById('pnlValue').className = 'result-value ' + (result.isProfit ? 'profit' : 'loss');
+            document.getElementById('roi').textContent = result.roi.toFixed(2) + '%';
+            document.getElementById('roi').className = 'result-value ' + (result.isProfit ? 'profit' : 'loss');
+            document.getElementById('positionValue').textContent = result.positionValue.toFixed(2) + 'USDT';
+            document.getElementById('finalBalance').textContent = result.finalBalance.toFixed(2) + 'USDT';
+            document.getElementById('finalBalance').className = 'result-value ' + (result.isProfit ? 'profit' : 'loss');
+
+            if (slPrice) {
+                const slResult = calculatePnL(entryPrice, slPrice, quantity, leverageVal, currentPosition);
+                document.getElementById('slPriceDisplay').textContent = slPrice.toFixed(4) + 'USDT';
+                document.getElementById('slLoss').textContent = slResult.pnl.toFixed(2) + 'USDT';
+                document.getElementById('slRoi').textContent = slResult.roi.toFixed(2) + '%';
+                document.getElementById('slResults').style.display = 'block';
+            } else {
+                document.getElementById('slResults').style.display = 'none';
+            }
+        });
+
+        document.getElementById('calculateAuto').addEventListener('click', function() {
+            const entryPrice = parseFloat(document.getElementById('entryPrice').value);
+            const quantity = parseFloat(document.getElementById('quantity').value);
+            const desiredRoi = parseFloat(document.getElementById('desiredRoi').value);
+            const maxLoss = parseFloat(document.getElementById('maxLoss').value);
+
+            if (!entryPrice || !quantity || !desiredRoi || !maxLoss) {
+                alert('Please fill in Entry Price, Quantity, ROI, and Max Loss');
+                return;
+            }
+
+            const positionValue = quantity * entryPrice;
+            const initialMargin = positionValue / leverageVal;
+            const desiredProfit = (desiredRoi / 100) * initialMargin;
+            const priceChangeForProfit = desiredProfit / quantity;
+            const priceChangeForLoss = maxLoss / quantity;
+
+            let tpPrice = currentPosition === 'long' ? entryPrice + priceChangeForProfit : entryPrice - priceChangeForProfit;
+            let slPrice = currentPosition === 'long' ? entryPrice - priceChangeForLoss : entryPrice + priceChangeForLoss;
+
+            const riskReward = Math.abs(desiredProfit / maxLoss);
+
+            document.getElementById('autoTpPrice').textContent = tpPrice.toFixed(4) + 'USDT';
+            document.getElementById('autoSlPrice').textContent = slPrice.toFixed(4) + 'USDT';
+            document.getElementById('autoProfit').textContent = '+' + desiredProfit.toFixed(2) + 'USDT';
+            document.getElementById('autoLoss').textContent = '-' + maxLoss.toFixed(2) + 'USDT';
+            document.getElementById('autoRR').textContent = riskReward.toFixed(2) + ':1';
+
+            document.getElementById('autoResults').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
