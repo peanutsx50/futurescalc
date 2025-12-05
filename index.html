@@ -370,6 +370,27 @@
             height: 15px;
         }
 
+        .info-box {
+            background: #2B3139;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            border-left: 3px solid #FCD535;
+        }
+
+        .info-box-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #FCD535;
+            margin-bottom: 6px;
+        }
+
+        .info-box-content {
+            font-size: 11px;
+            color: #848E9C;
+            line-height: 1.5;
+        }
+
         @media (max-width: 900px) {
             .container {
                 grid-template-columns: 1fr;
@@ -550,7 +571,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label>Stop Loss Price</label>
+                    <label>Stop Loss Price (Optional)</label>
                     <div class="input-wrapper">
                         <input type="number" id="slPrice" placeholder="0.00" step="0.0001">
                         <span class="input-suffix">USDT</span>
@@ -633,7 +654,7 @@
             <div class="save-message" id="saveMessage"></div>
             <button class="save-btn" id="saveDataBtn">Save Data</button>
             <div class="note">
-                * See what the potential risk and reward will be in monetary terms on any given trade.
+                * Fees are calculated based on Binance Futures fee structure. Stop loss recommendations use 1-2% risk guidelines.
             </div>
         </div>
 
@@ -646,11 +667,27 @@
                     <span class="result-value" id="initialMargin">--USDT</span>
                 </div>
                 <div class="result-row">
-                    <span class="result-label">PnL</span>
+                    <span class="result-label">Opening Fee</span>
+                    <span class="result-value loss" id="openingFee">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Closing Fee</span>
+                    <span class="result-value loss" id="closingFee">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Total Fees</span>
+                    <span class="result-value loss" id="totalFees">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">PnL (before fees)</span>
+                    <span class="result-value" id="pnlValueBefore">0.00USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">PnL (after fees)</span>
                     <span class="result-value" id="pnlValue">0.00USDT</span>
                 </div>
                 <div class="result-row">
-                    <span class="result-label">ROI</span>
+                    <span class="result-label">ROI (after fees)</span>
                     <span class="result-value" id="roi">0.00%</span>
                 </div>
                 <div class="result-row">
@@ -671,6 +708,14 @@
                 </div>
             </div>
 
+            <div id="recommendedSL" style="display: none;">
+                <div class="section-divider"></div>
+                <div class="info-box">
+                    <div class="info-box-title">Recommended Stop Loss</div>
+                    <div class="info-box-content" id="recommendedSLContent"></div>
+                </div>
+            </div>
+
             <div id="slResults" style="display: none;">
                 <div class="section-divider"></div>
                 <div class="results-header" style="font-size: 13px; margin-bottom: 12px;">Stop Loss Impact</div>
@@ -679,7 +724,7 @@
                     <span class="result-value" id="slPriceDisplay">--USDT</span>
                 </div>
                 <div class="result-row">
-                    <span class="result-label">Loss if hit</span>
+                    <span class="result-label">Loss if hit (after fees)</span>
                     <span class="result-value loss" id="slLoss">--USDT</span>
                 </div>
                 <div class="result-row">
@@ -704,16 +749,24 @@
                     <span class="result-value loss" id="autoSlPrice">--USDT</span>
                 </div>
                 <div class="result-row">
-                    <span class="result-label">Expected Profit</span>
+                    <span class="result-label">Expected Profit (after fees)</span>
                     <span class="result-value profit" id="autoProfit">--USDT</span>
                 </div>
                 <div class="result-row">
-                    <span class="result-label">Maximum Loss</span>
+                    <span class="result-label">Maximum Loss (after fees)</span>
                     <span class="result-value loss" id="autoLoss">--USDT</span>
                 </div>
                 <div class="result-row">
                     <span class="result-label">Risk/Reward</span>
                     <span class="result-value" id="autoRR">--</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Total Fees (TP)</span>
+                    <span class="result-value loss" id="autoTpFees">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Total Fees (SL)</span>
+                    <span class="result-value loss" id="autoSlFees">--USDT</span>
                 </div>
             </div>
         </div>
@@ -743,6 +796,53 @@
         const coinSelect = document.getElementById('coinSelect');
         const coinSuffix = document.getElementById('coinSuffix');
         const coinSuffixAuto = document.getElementById('coinSuffixAuto');
+        
+        // Binance Futures fee structure (maker/taker)
+        function getFeeRate(leverage) {
+            // Standard fees: Maker 0.02%, Taker 0.04%
+            // Using taker fees as default (most common for market orders)
+            return 0.0004; // 0.04%
+        }
+        
+        function calculateFees(positionValue, leverage) {
+            const feeRate = getFeeRate(leverage);
+            const openingFee = positionValue * feeRate;
+            const closingFee = positionValue * feeRate;
+            return {
+                openingFee,
+                closingFee,
+                totalFees: openingFee + closingFee
+            };
+        }
+        
+        function getRecommendedStopLoss(entryPrice, positionValue, initialMargin, position) {
+            // Conservative: 1% of margin
+            const conservativeLoss = initialMargin * 0.01;
+            const conservativePriceChange = conservativeLoss / (positionValue / entryPrice);
+            const conservativeSL = position === 'long' 
+                ? entryPrice - conservativePriceChange 
+                : entryPrice + conservativePriceChange;
+            
+            // Moderate: 2% of margin
+            const moderateLoss = initialMargin * 0.02;
+            const moderatePriceChange = moderateLoss / (positionValue / entryPrice);
+            const moderateSL = position === 'long' 
+                ? entryPrice - moderatePriceChange 
+                : entryPrice + moderatePriceChange;
+            
+            // Aggressive: 5% of margin
+            const aggressiveLoss = initialMargin * 0.05;
+            const aggressivePriceChange = aggressiveLoss / (positionValue / entryPrice);
+            const aggressiveSL = position === 'long' 
+                ? entryPrice - aggressivePriceChange 
+                : entryPrice + aggressivePriceChange;
+            
+            return {
+                conservative: { price: conservativeSL, loss: conservativeLoss },
+                moderate: { price: moderateSL, loss: moderateLoss },
+                aggressive: { price: aggressiveSL, loss: aggressiveLoss }
+            };
+        }
         
         coinSelect.addEventListener('change', function() {
             selectedCoin = this.value;
@@ -857,11 +957,22 @@
                 priceDiff = entry - exit;
             }
 
-            const pnl = qty * priceDiff;
+            const pnlBeforeFees = qty * priceDiff;
+            const fees = calculateFees(positionValue, lev);
+            const pnl = pnlBeforeFees - fees.totalFees;
             const roi = (pnl / initialMargin) * 100;
             const finalBalance = initialMargin + pnl;
 
-            return { positionValue, initialMargin, pnl, roi, finalBalance, isProfit: pnl >= 0 };
+            return { 
+                positionValue, 
+                initialMargin, 
+                pnlBeforeFees,
+                pnl, 
+                roi, 
+                finalBalance, 
+                isProfit: pnl >= 0,
+                fees
+            };
         }
         
         document.getElementById('calculateBtn').addEventListener('click', function() {
@@ -882,6 +993,11 @@
             const finalBalance = accountBalance + result.pnl;
 
             document.getElementById('initialMargin').textContent = result.initialMargin.toFixed(2) + 'USDT';
+            document.getElementById('openingFee').textContent = result.fees.openingFee.toFixed(4) + 'USDT';
+            document.getElementById('closingFee').textContent = result.fees.closingFee.toFixed(4) + 'USDT';
+            document.getElementById('totalFees').textContent = result.fees.totalFees.toFixed(4) + 'USDT';
+            document.getElementById('pnlValueBefore').textContent = (result.pnlBeforeFees >= 0 ? '+' : '') + result.pnlBeforeFees.toFixed(2) + 'USDT';
+            document.getElementById('pnlValueBefore').className = 'result-value ' + (result.pnlBeforeFees >= 0 ? 'profit' : 'loss');
             document.getElementById('pnlValue').textContent = (result.isProfit ? '+' : '') + result.pnl.toFixed(2) + 'USDT';
             document.getElementById('pnlValue').className = 'result-value ' + (result.isProfit ? 'profit' : 'loss');
             document.getElementById('roi').textContent = result.roi.toFixed(2) + '%';
@@ -901,6 +1017,16 @@
             }
 
             document.getElementById('liquidationPrice').textContent = liquidationPrice.toFixed(4) + 'USDT';
+
+            // Show recommended stop loss
+            const recommendedSL = getRecommendedStopLoss(entryPrice, result.positionValue, result.initialMargin, currentPosition);
+            const slContent = `
+                <strong>Conservative (1% risk):</strong> ${recommendedSL.conservative.price.toFixed(4)} USDT (Loss: ${recommendedSL.conservative.loss.toFixed(2)} USDT)<br>
+                <strong>Moderate (2% risk):</strong> ${recommendedSL.moderate.price.toFixed(4)} USDT (Loss: ${recommendedSL.moderate.loss.toFixed(2)} USDT)<br>
+                <strong>Aggressive (5% risk):</strong> ${recommendedSL.aggressive.price.toFixed(4)} USDT (Loss: ${recommendedSL.aggressive.loss.toFixed(2)} USDT)
+            `;
+            document.getElementById('recommendedSLContent').innerHTML = slContent;
+            document.getElementById('recommendedSL').style.display = 'block';
 
             let riskRewardRatio = '--';
             if (slPrice) {
@@ -929,8 +1055,8 @@
         });
         
         document.getElementById('calculateAuto').addEventListener('click', function() {
-            const entryPrice = parseFloat(document.getElementById('entryPrice').value);
-            const quantity = parseFloat(document.getElementById('quantity').value);
+            const entryPrice = parseFloat(document.getElementById('entryPriceAuto').value);
+            const quantity = parseFloat(document.getElementById('quantityAuto').value);
             
             const desiredRoi = parseFloat(document.getElementById('desiredRoi').value);
             const maxLoss = parseFloat(document.getElementById('maxLoss').value);
@@ -942,13 +1068,22 @@
 
             const positionValue = quantity * entryPrice;
             const initialMargin = positionValue / leverageValAuto;
-            const desiredProfit = (desiredRoi / 100) * initialMargin;
-            const priceChangeForProfit = desiredProfit / quantity;
-            const priceChangeForLoss = maxLoss / quantity;
+            
+            // Calculate fees
+            const fees = calculateFees(positionValue, leverageValAuto);
+            
+            // Adjust desired profit to account for fees
+            const desiredProfitBeforeFees = (desiredRoi / 100) * initialMargin + fees.totalFees;
+            const priceChangeForProfit = desiredProfitBeforeFees / quantity;
+            
+            // Adjust max loss to account for fees
+            const maxLossBeforeFees = maxLoss - fees.totalFees;
+            const priceChangeForLoss = maxLossBeforeFees / quantity;
 
             let tpPrice = currentPositionAuto === 'long' ? entryPrice + priceChangeForProfit : entryPrice - priceChangeForProfit;
             let slPrice = currentPositionAuto === 'long' ? entryPrice - priceChangeForLoss : entryPrice + priceChangeForLoss;
 
+            const desiredProfit = (desiredRoi / 100) * initialMargin;
             const riskReward = Math.abs(desiredProfit / maxLoss);
 
             document.getElementById('autoTpPrice').textContent = tpPrice.toFixed(4) + 'USDT';
@@ -956,10 +1091,13 @@
             document.getElementById('autoProfit').textContent = '+' + desiredProfit.toFixed(2) + 'USDT';
             document.getElementById('autoLoss').textContent = '-' + maxLoss.toFixed(2) + 'USDT';
             document.getElementById('autoRR').textContent = riskReward.toFixed(2) + ':1';
+            document.getElementById('autoTpFees').textContent = fees.totalFees.toFixed(4) + 'USDT';
+            document.getElementById('autoSlFees').textContent = fees.totalFees.toFixed(4) + 'USDT';
 
             document.getElementById('autoResults').style.display = 'block';
             document.getElementById('manualResults').style.display = 'none';
             document.getElementById('slResults').style.display = 'none';
+            document.getElementById('recommendedSL').style.display = 'none';
         });
         
         document.getElementById('saveDataBtn').addEventListener('click', function() {
@@ -978,58 +1116,25 @@
             dataToSave['leverageValAuto'] = leverageValAuto;
             dataToSave['selectedCoin'] = selectedCoin;
 
-            localStorage.setItem('futuresCalculatorData', JSON.stringify(dataToSave));
-            
-            const saveMessage = document.getElementById('saveMessage');
-            saveMessage.textContent = 'Data saved successfully!';
-            setTimeout(() => {
-                saveMessage.textContent = '';
-            }, 3000);
+            try {
+                const jsonData = JSON.stringify(dataToSave);
+                const dataBlob = new Blob([jsonData], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'futures_calculator_data.json';
+                link.click();
+                URL.revokeObjectURL(url);
+                
+                const saveMessage = document.getElementById('saveMessage');
+                saveMessage.textContent = 'Data saved successfully!';
+                setTimeout(() => {
+                    saveMessage.textContent = '';
+                }, 3000);
+            } catch (error) {
+                alert('Error saving data: ' + error.message);
+            }
         });
-        
-        function loadSavedData() {
-            const savedData = localStorage.getItem('futuresCalculatorData');
-            if (!savedData) return;
-
-            const data = JSON.parse(savedData);
-
-            inputFields.forEach(id => {
-                const element = document.getElementById(id);
-                if (element && data[id] !== undefined) {
-                    element.value = data[id];
-                }
-            });
-
-            if (data.leverageVal !== undefined) {
-                updateLeverage(parseInt(data.leverageVal));
-            }
-            if (data.currentPosition === 'long') {
-                longBtn.click();
-            } else if (data.currentPosition === 'short') {
-                shortBtn.click();
-            }
-            
-            if (data.leverageValAuto !== undefined) {
-                updateLeverageAuto(parseInt(data.leverageValAuto));
-            }
-            if (data.currentPositionAuto === 'long') {
-                longBtnAuto.click();
-            } else if (data.currentPositionAuto === 'short') {
-                shortBtnAuto.click();
-            }
-            
-            if (data.selectedCoin) {
-                selectedCoin = data.selectedCoin;
-                coinSelect.value = data.selectedCoin;
-                coinSuffix.textContent = data.selectedCoin;
-                coinSuffixAuto.textContent = data.selectedCoin;
-            }
-            
-            entryPriceAuto.value = document.getElementById('entryPrice').value;
-            quantityAuto.value = document.getElementById('quantity').value;
-        }
-
-        document.addEventListener('DOMContentLoaded', loadSavedData);
         
         entryPriceAuto.value = document.getElementById('entryPrice').value;
         quantityAuto.value = document.getElementById('quantity').value;
