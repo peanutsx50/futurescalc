@@ -20,11 +20,11 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 2px;
+            gap: 20px;
             background: #0B0E11;
         }
 
@@ -391,9 +391,22 @@
             line-height: 1.5;
         }
 
+        /* Responsive layout changes only */
         @media (max-width: 900px) {
             .container {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            .panel {
+                padding: 16px;
             }
         }
     </style>
@@ -721,6 +734,7 @@
             <div class="note">
                 * Fees are calculated based on Binance Futures fee structure. Stop loss recommendations use 1-2% risk guidelines.
             </div>
+        </div>
 
         <div class="panel results-panel">
             <div class="results-header">Results</div>
