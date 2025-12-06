@@ -75,6 +75,62 @@
             border-color: #FCD535;
         }
 
+        .live-price-section {
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #2B3139;
+            border-radius: 4px;
+            border: 1px solid #2B3139;
+        }
+
+        .live-price-section label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #848E9C;
+            margin-bottom: 8px;
+        }
+
+        .live-price-status {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .live-price-status.live {
+            color: #0ECB81;
+        }
+
+        .live-price-status.loading {
+            color: #FCD535;
+        }
+
+        .live-price-status.error {
+            color: #F6465D;
+        }
+
+        .price-refresh-btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 8px;
+            background: #2B3139;
+            border: 1px solid #2B3139;
+            border-radius: 4px;
+            color: #848E9C;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .price-refresh-btn:hover {
+            border-color: #FCD535;
+            color: #FCD535;
+        }
+
+        .price-refresh-btn:active {
+            background: #3a414a;
+        }
+
         .main-tabs {
             display: flex;
             margin-bottom: 20px;
@@ -528,6 +584,21 @@
                     <option value="TAIKO">TAIKOUSDT</option>
                 </select>
             </div>
+
+            <!-- Live Price Section -->
+            <div class="live-price-section">
+                <label>
+                    <span>Current Price</span>
+                    <span id="livePriceStatus" class="live-price-status">● Live</span>
+                </label>
+                <div class="input-wrapper">
+                    <input type="number" id="currentPrice" placeholder="0.00" step="0.0001" readonly>
+                    <span class="input-suffix">USDT</span>
+                </div>
+                <button id="refreshPriceBtn" class="price-refresh-btn">
+                    Refresh Price
+                </button>
+            </div>
             
             <div class="main-tabs">
                 <button class="main-tab active" id="pnlTab">PnL</button>
@@ -919,6 +990,115 @@
         let currentPositionRisk = 'short';
         let selectedCoin = 'ASTER';
         
+        // Map coin symbols to Binance API symbols
+        const coinSymbolMap = {
+            'ASTER': 'ASTERUSDT',
+            'BTC': 'BTCUSDT',
+            'ETH': 'ETHUSDT',
+            'BNB': 'BNBUSDT',
+            'SOL': 'SOLUSDT',
+            'XRP': 'XRPUSDT',
+            'DOGE': 'DOGEUSDT',
+            'ADA': 'ADAUSDT',
+            'AVAX': 'AVAXUSDT',
+            'LINK': 'LINKUSDT',
+            'DOT': 'DOTUSDT',
+            'MATIC': 'MATICUSDT',
+            'UNI': 'UNIUSDT',
+            'LTC': 'LTCUSDT',
+            'BCH': 'BCHUSDT',
+            'ATOM': 'ATOMUSDT',
+            'FIL': 'FILUSDT',
+            'TRX': 'TRXUSDT',
+            'ETC': 'ETCUSDT',
+            'XLM': 'XLMUSDT',
+            'ICP': 'ICPUSDT',
+            'APT': 'APTUSDT',
+            'ARB': 'ARBUSDT',
+            'OP': 'OPUSDT',
+            'INJ': 'INJUSDT',
+            'SUI': 'SUIUSDT',
+            'PEPE': '1000PEPEUSDT',
+            'SHIB': '1000SHIBUSDT',
+            'BONK': '1000BONKUSDT',
+            'WIF': 'WIFUSDT',
+            'FLOKI': '1000FLOKIUSDT',
+            'SEI': 'SEIUSDT',
+            'TIA': 'TIAUSDT',
+            'JUP': 'JUPUSDT',
+            'STRK': 'STRKUSDT',
+            'PYTH': 'PYTHUSDT',
+            'DYM': 'DYMUSDT',
+            'MANTA': 'MANTAUSDT',
+            'ORDI': 'ORDIUSDT',
+            'STX': 'STXUSDT',
+            'RNDR': 'RENDERUSDT',
+            'NEAR': 'NEARUSDT',
+            'FET': 'FETUSDT',
+            'GRT': 'GRTUSDT',
+            'RUNE': 'RUNEUSDT',
+            'AAVE': 'AAVEUSDT',
+            'IMX': 'IMXUSDT',
+            'THETA': 'THETAUSDT',
+            'AXS': 'AXSUSDT',
+            'SAND': 'SANDUSDT',
+            'MANA': 'MANAUSDT',
+            'ENJ': 'ENJUSDT',
+            'CHZ': 'CHZUSDT',
+            'GALA': 'GALAUSDT',
+            'APE': 'APEUSDT',
+            'GMT': 'GMTUSDT',
+            'WLD': 'WLDUSDT',
+            'TON': 'TONUSDT',
+            'NOT': 'NOTUSDT',
+            'DOGS': 'DOGSUSDT',
+            'HMSTR': 'HMSTRUSDT',
+            'CATI': 'CATIUSDT',
+            'NEIRO': 'NEIROUSDT',
+            'TURBO': 'TURBOUSDT',
+            'BOME': 'BOMEUSDT',
+            'ENA': 'ENAUSDT',
+            'ETHFI': 'ETHFIUSDT',
+            'REZ': 'REZUSDT',
+            'BB': 'BBUSDT',
+            'IO': 'IOUSDT',
+            'ZK': 'ZKUSDT',
+            'LISTA': 'LISTAUSDT',
+            'ZRO': 'ZROUSDT',
+            'BANANA': 'BANANAUSDT',
+            'RENDER': 'RENDERUSDT',
+            'G': 'GUSDT',
+            'POPCAT': 'POPCATUSDT',
+            'MEW': 'MEWUSDT',
+            'BRETT': 'BRETTUSDT',
+            'SUN': 'SUNUSDT',
+            'EIGEN': 'EIGENUSDT',
+            'GOAT': 'GOATUSDT',
+            'SCR': 'SCRUSDT',
+            'GRASS': 'GRASSUSDT',
+            'ACT': 'ACTUSDT',
+            'PNUT': 'PNUTUSDT',
+            'BAN': 'BANUSDT',
+            'MOVE': 'MOVEUSDT',
+            'VIRTUAL': 'VIRTUALUSDT',
+            'ME': 'MEUSDT',
+            'PENGU': 'PENGUUSDT',
+            'LUMIA': 'LUMIAUSDT',
+            'USUAL': 'USUALUSDT',
+            'AIXBT': 'AIXBTUSDT',
+            'COOKIE': 'COOKIEUSDT',
+            'BIO': 'BIOUSDT',
+            'SONIC': 'SONICUSDT',
+            'TRUMP': 'TRUMPUSDT',
+            'MELANIA': 'MELANIAUSDT',
+            'LAYER': 'LAYERUSDT',
+            'VIC': 'VICUSDT',
+            'DEEP': 'DEEPUSDT',
+            'HYPE': 'HYPEUSDT',
+            'PUFFER': 'PUFFERUSDT',
+            'TAIKO': 'TAIKOUSDT'
+        };
+        
         const longBtn = document.getElementById('longBtn');
         const shortBtn = document.getElementById('shortBtn');
         const leverageSlider = document.getElementById('leverage');
@@ -936,6 +1116,9 @@
         const coinSelect = document.getElementById('coinSelect');
         const coinSuffix = document.getElementById('coinSuffix');
         const coinSuffixAuto = document.getElementById('coinSuffixAuto');
+        const currentPriceInput = document.getElementById('currentPrice');
+        const livePriceStatus = document.getElementById('livePriceStatus');
+        const refreshPriceBtn = document.getElementById('refreshPriceBtn');
         
         // Binance Futures fee structure (maker/taker)
         function getFeeRate(leverage) {
@@ -984,10 +1167,63 @@
             };
         }
         
+        // Function to fetch live price from Binance API
+        async function fetchLivePrice() {
+            const selectedCoinValue = coinSelect.value;
+            const binanceSymbol = coinSymbolMap[selectedCoinValue];
+            
+            if (!binanceSymbol) {
+                console.log('No symbol mapping found for:', selectedCoinValue);
+                livePriceStatus.textContent = '● Symbol not found';
+                livePriceStatus.className = 'live-price-status error';
+                return;
+            }
+            
+            try {
+                // Show loading state
+                livePriceStatus.textContent = '● Loading...';
+                livePriceStatus.className = 'live-price-status loading';
+                
+                const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${binanceSymbol}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const currentPrice = parseFloat(data.price);
+                
+                // Update the current price input field
+                currentPriceInput.value = currentPrice.toFixed(4);
+                
+                // Auto-fill entry price fields for convenience
+                document.getElementById('entryPrice').value = currentPrice.toFixed(4);
+                document.getElementById('entryPriceAuto').value = currentPrice.toFixed(4);
+                document.getElementById('entryPriceRisk').value = currentPrice.toFixed(4);
+                
+                // Update status
+                livePriceStatus.textContent = `● Live (${currentPrice.toFixed(4)})`;
+                livePriceStatus.className = 'live-price-status live';
+                
+                console.log(`Live price for ${binanceSymbol}: $${currentPrice}`);
+                
+            } catch (error) {
+                console.error('Error fetching live price:', error);
+                livePriceStatus.textContent = '● Error fetching price';
+                livePriceStatus.className = 'live-price-status error';
+            }
+        }
+        
+        // Event listener for refresh price button
+        refreshPriceBtn.addEventListener('click', fetchLivePrice);
+        
         coinSelect.addEventListener('change', function() {
             selectedCoin = this.value;
             coinSuffix.textContent = selectedCoin;
             coinSuffixAuto.textContent = selectedCoin;
+            
+            // Fetch new price when coin changes
+            fetchLivePrice();
         });
         
         const inputFields = [
@@ -1387,6 +1623,7 @@
             dataToSave['currentPositionAuto'] = currentPositionAuto;
             dataToSave['leverageValAuto'] = leverageValAuto;
             dataToSave['selectedCoin'] = selectedCoin;
+            dataToSave['currentPrice'] = currentPriceInput.value;
 
             try {
                 const jsonData = JSON.stringify(dataToSave);
@@ -1408,8 +1645,14 @@
             }
         });
         
+        // Initialize entry prices with current price
         entryPriceAuto.value = document.getElementById('entryPrice').value;
         quantityAuto.value = document.getElementById('quantity').value;
+        
+        // Fetch live price on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(fetchLivePrice, 1000);
+        });
     </script>
 </body>
 </html>
