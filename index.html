@@ -519,6 +519,7 @@
             <div class="main-tabs">
                 <button class="main-tab active" id="pnlTab">PnL</button>
                 <button class="main-tab" id="autoTpSlTab">Auto TP/SL</button>
+                <button class="main-tab" id="riskBasedTab">Risk-Based Setup</button>
             </div>
 
             <div class="tab-content active" id="pnlContent">
@@ -651,12 +652,75 @@
                 <button class="calculate-btn" id="calculateAuto">Calculate TP/SL</button>
             </div>
 
+            <div class="tab-content" id="riskBasedContent">
+                <div class="sub-tabs">
+                    <button class="tab" id="longBtnRisk">Long</button>
+                    <button class="tab short active" id="shortBtnRisk">Short</button>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-box-title">Risk Management Setup</div>
+                    <div class="info-box-content">Enter how much money you're willing to lose (e.g., $10) and your desired profit ratio. The calculator will determine the optimal position size, leverage, and exact TP/SL prices.</div>
+                </div>
+
+                <div class="input-group">
+                    <label>Account Balance</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="accountBalance" placeholder="1000.00" step="0.01">
+                        <span class="input-suffix">USDT</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Risk Per Trade (%)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="riskPerTrade" placeholder="2" step="0.1" value="2">
+                        <span class="input-suffix">%</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Entry Price</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="entryPriceRisk" placeholder="0.00" step="0.0001">
+                        <span class="input-suffix">USDT</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Maximum Loss Amount (Risk)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="maxLossAmount" placeholder="10.00" step="0.01">
+                        <span class="input-suffix">USDT</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Desired Risk/Reward Ratio</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="rrRatio" placeholder="2" step="0.1" value="2">
+                        <span class="input-suffix">:1</span>
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <div class="input-group">
+                    <label>Preferred Leverage (Optional)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="preferredLeverage" placeholder="Auto" step="1" min="1" max="125">
+                        <span class="input-suffix">x</span>
+                    </div>
+                </div>
+
+                <button class="calculate-btn" id="calculateRisk">Calculate Setup</button>
+            </div>
+
             <div class="save-message" id="saveMessage"></div>
             <button class="save-btn" id="saveDataBtn">Save Data</button>
             <div class="note">
                 * Fees are calculated based on Binance Futures fee structure. Stop loss recommendations use 1-2% risk guidelines.
             </div>
-        </div>
 
         <div class="panel results-panel">
             <div class="results-header">Results</div>
@@ -769,6 +833,67 @@
                     <span class="result-value loss" id="autoSlFees">--USDT</span>
                 </div>
             </div>
+
+            <div id="riskResults" style="display: none;">
+                <div class="section-divider"></div>
+                <div class="info-box">
+                    <div class="info-box-title">💡 Recommended Setup</div>
+                    <div class="info-box-content" id="setupSummary"></div>
+                </div>
+                <div class="results-header" style="font-size: 13px; margin-bottom: 12px;">Position Details</div>
+                <div class="result-row">
+                    <span class="result-label">Recommended Leverage</span>
+                    <span class="result-value" id="riskLeverage">--x</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Position Size</span>
+                    <span class="result-value" id="riskPositionSize">--</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Quantity</span>
+                    <span class="result-value" id="riskQuantity">--</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Required Margin</span>
+                    <span class="result-value" id="riskMargin">--USDT</span>
+                </div>
+                <div class="section-divider"></div>
+                <div class="results-header" style="font-size: 13px; margin-bottom: 12px;">Price Targets</div>
+                <div class="result-row">
+                    <span class="result-label">Entry Price</span>
+                    <span class="result-value" id="riskEntry">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Stop Loss Price</span>
+                    <span class="result-value loss" id="riskSL">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Take Profit Price</span>
+                    <span class="result-value profit" id="riskTP">--USDT</span>
+                </div>
+                <div class="section-divider"></div>
+                <div class="results-header" style="font-size: 13px; margin-bottom: 12px;">Risk Analysis</div>
+                <div class="result-row">
+                    <span class="result-label">Risk Amount</span>
+                    <span class="result-value loss" id="riskAmount">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Potential Profit</span>
+                    <span class="result-value profit" id="riskProfit">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Risk/Reward Ratio</span>
+                    <span class="result-value" id="riskRR">--</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Total Fees</span>
+                    <span class="result-value loss" id="riskFees">--USDT</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Liquidation Price</span>
+                    <span class="result-value loss" id="riskLiquidation">--USDT</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -777,6 +902,7 @@
         let leverageVal = 6;
         let currentPositionAuto = 'short';
         let leverageValAuto = 6;
+        let currentPositionRisk = 'short';
         let selectedCoin = 'ASTER';
         
         const longBtn = document.getElementById('longBtn');
@@ -857,8 +983,13 @@
         
         const pnlTab = document.getElementById('pnlTab');
         const autoTpSlTab = document.getElementById('autoTpSlTab');
+        const riskBasedTab = document.getElementById('riskBasedTab');
         const pnlContent = document.getElementById('pnlContent');
         const autoTpSlContent = document.getElementById('autoTpSlContent');
+        const riskBasedContent = document.getElementById('riskBasedContent');
+        
+        const longBtnRisk = document.getElementById('longBtnRisk');
+        const shortBtnRisk = document.getElementById('shortBtnRisk');
         
         const entryPriceAuto = document.getElementById('entryPriceAuto');
         const quantityAuto = document.getElementById('quantityAuto');
@@ -867,22 +998,34 @@
             if (activeTab === 'pnl') {
                 pnlTab.classList.add('active');
                 autoTpSlTab.classList.remove('active');
+                riskBasedTab.classList.remove('active');
                 pnlContent.classList.add('active');
                 autoTpSlContent.classList.remove('active');
+                riskBasedContent.classList.remove('active');
                 entryPriceAuto.value = document.getElementById('entryPrice').value;
                 quantityAuto.value = document.getElementById('quantity').value;
             } else if (activeTab === 'autoTpSl') {
                 autoTpSlTab.classList.add('active');
                 pnlTab.classList.remove('active');
+                riskBasedTab.classList.remove('active');
                 autoTpSlContent.classList.add('active');
                 pnlContent.classList.remove('active');
+                riskBasedContent.classList.remove('active');
                 entryPriceAuto.value = document.getElementById('entryPrice').value;
                 quantityAuto.value = document.getElementById('quantity').value;
+            } else if (activeTab === 'riskBased') {
+                riskBasedTab.classList.add('active');
+                pnlTab.classList.remove('active');
+                autoTpSlTab.classList.remove('active');
+                riskBasedContent.classList.add('active');
+                pnlContent.classList.remove('active');
+                autoTpSlContent.classList.remove('active');
             }
         }
         
         pnlTab.addEventListener('click', () => switchTab('pnl'));
         autoTpSlTab.addEventListener('click', () => switchTab('autoTpSl'));
+        riskBasedTab.addEventListener('click', () => switchTab('riskBased'));
         
         longBtn.addEventListener('click', function() {
             currentPosition = 'long';
@@ -908,6 +1051,19 @@
             currentPositionAuto = 'short';
             shortBtnAuto.classList.add('active', 'short');
             longBtnAuto.classList.remove('active');
+        });
+        
+        longBtnRisk.addEventListener('click', function() {
+            currentPositionRisk = 'long';
+            longBtnRisk.classList.add('active');
+            longBtnRisk.classList.remove('short');
+            shortBtnRisk.classList.remove('active');
+        });
+
+        shortBtnRisk.addEventListener('click', function() {
+            currentPositionRisk = 'short';
+            shortBtnRisk.classList.add('active', 'short');
+            longBtnRisk.classList.remove('active');
         });
 
         function updateLeverage(val) {
@@ -1098,6 +1254,108 @@
             document.getElementById('manualResults').style.display = 'none';
             document.getElementById('slResults').style.display = 'none';
             document.getElementById('recommendedSL').style.display = 'none';
+            document.getElementById('riskResults').style.display = 'none';
+        });
+        
+        document.getElementById('calculateRisk').addEventListener('click', function() {
+            const accountBalance = parseFloat(document.getElementById('accountBalance').value);
+            const riskPerTrade = parseFloat(document.getElementById('riskPerTrade').value);
+            const entryPrice = parseFloat(document.getElementById('entryPriceRisk').value);
+            const maxLossAmount = parseFloat(document.getElementById('maxLossAmount').value);
+            const rrRatio = parseFloat(document.getElementById('rrRatio').value);
+            const preferredLeverage = parseFloat(document.getElementById('preferredLeverage').value);
+
+            if (!accountBalance || !entryPrice || !maxLossAmount || !rrRatio) {
+                alert('Please fill in Account Balance, Entry Price, Maximum Loss Amount, and Risk/Reward Ratio');
+                return;
+            }
+
+            // Use max loss amount as the risk
+            const riskAmount = maxLossAmount;
+            const actualRiskPercent = (riskAmount / accountBalance) * 100;
+            
+            // Determine optimal leverage
+            let leverage;
+            if (preferredLeverage && preferredLeverage >= 1 && preferredLeverage <= 125) {
+                leverage = preferredLeverage;
+            } else {
+                // Auto-calculate optimal leverage based on risk percentage
+                if (actualRiskPercent <= 1) leverage = 5;
+                else if (actualRiskPercent <= 2) leverage = 10;
+                else if (actualRiskPercent <= 3) leverage = 15;
+                else if (actualRiskPercent <= 5) leverage = 20;
+                else leverage = 25;
+            }
+            
+            // Calculate position size that gives us the desired risk
+            // We need to work backwards: Risk = Position Size * Price Change%
+            // We'll use a reasonable SL distance based on leverage (higher leverage = tighter SL)
+            let slDistancePercent;
+            if (leverage <= 5) slDistancePercent = 5;
+            else if (leverage <= 10) slDistancePercent = 3;
+            else if (leverage <= 20) slDistancePercent = 2;
+            else slDistancePercent = 1.5;
+            
+            // Calculate quantity needed
+            // Risk = Quantity * Entry Price * (SL Distance % / 100)
+            const quantity = riskAmount / (entryPrice * (slDistancePercent / 100));
+            const positionValue = quantity * entryPrice;
+            const margin = positionValue / leverage;
+            
+            // Calculate SL and TP prices
+            const slPriceDistance = entryPrice * (slDistancePercent / 100);
+            const slPrice = currentPositionRisk === 'long' 
+                ? entryPrice - slPriceDistance 
+                : entryPrice + slPriceDistance;
+            
+            const tpPriceDistance = slPriceDistance * rrRatio;
+            const tpPrice = currentPositionRisk === 'long' 
+                ? entryPrice + tpPriceDistance 
+                : entryPrice - tpPriceDistance;
+            
+            // Calculate fees
+            const fees = calculateFees(positionValue, leverage);
+            
+            // Calculate profit target (after fees)
+            const profitAmount = (riskAmount * rrRatio) - fees.totalFees;
+            
+            // Calculate liquidation price
+            const maintenanceMarginRate = 0.004;
+            let liquidationPrice;
+            if (currentPositionRisk === 'long') {
+                liquidationPrice = entryPrice * (1 - (margin * (1 - maintenanceMarginRate)) / positionValue);
+            } else {
+                liquidationPrice = entryPrice * (1 + (margin * (1 - maintenanceMarginRate)) / positionValue);
+            }
+            
+            // Display results
+            document.getElementById('riskLeverage').textContent = leverage + 'x';
+            document.getElementById('riskPositionSize').textContent = positionValue.toFixed(2) + ' USDT';
+            document.getElementById('riskQuantity').textContent = quantity.toFixed(4) + ' ' + selectedCoin;
+            document.getElementById('riskMargin').textContent = margin.toFixed(2) + ' USDT';
+            document.getElementById('riskEntry').textContent = entryPrice.toFixed(4) + ' USDT';
+            document.getElementById('riskSL').textContent = slPrice.toFixed(4) + ' USDT (' + slDistancePercent + '%)';
+            document.getElementById('riskTP').textContent = tpPrice.toFixed(4) + ' USDT (' + (slDistancePercent * rrRatio).toFixed(1) + '%)';
+            document.getElementById('riskAmount').textContent = riskAmount.toFixed(2) + ' USDT (' + actualRiskPercent.toFixed(2) + '% of account)';
+            document.getElementById('riskProfit').textContent = profitAmount.toFixed(2) + ' USDT';
+            document.getElementById('riskRR').textContent = rrRatio.toFixed(1) + ':1';
+            document.getElementById('riskFees').textContent = fees.totalFees.toFixed(4) + ' USDT';
+            document.getElementById('riskLiquidation').textContent = liquidationPrice.toFixed(4) + ' USDT';
+            
+            // Create summary
+            const marginPercent = (margin / accountBalance * 100).toFixed(1);
+            const summaryText = `
+                Open a <strong>${currentPositionRisk.toUpperCase()}</strong> position with <strong>${leverage}x</strong> leverage using <strong>${marginPercent}% (${margin.toFixed(2)} USDT)</strong> of your account. 
+                Your maximum loss will be <strong>${riskAmount.toFixed(2)}</strong> if stop loss at <strong>${slPrice.toFixed(4)} USDT</strong> is hit. 
+                Your potential profit is <strong>${profitAmount.toFixed(2)}</strong> if take profit at <strong>${tpPrice.toFixed(4)} USDT</strong> is reached.
+            `;
+            document.getElementById('setupSummary').innerHTML = summaryText;
+            
+            document.getElementById('riskResults').style.display = 'block';
+            document.getElementById('manualResults').style.display = 'none';
+            document.getElementById('slResults').style.display = 'none';
+            document.getElementById('recommendedSL').style.display = 'none';
+            document.getElementById('autoResults').style.display = 'none';
         });
         
         document.getElementById('saveDataBtn').addEventListener('click', function() {
