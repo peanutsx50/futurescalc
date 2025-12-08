@@ -309,6 +309,80 @@
             font-size: 13px;
         }
 
+        .number-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .number-control-btn {
+            width: 32px;
+            height: 32px;
+            background: #2B3139;
+            border: 1px solid #2B3139;
+            border-radius: 4px;
+            color: #848E9C;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .number-control-btn:hover {
+            border-color: #FCD535;
+            color: #FCD535;
+        }
+
+        .number-control-input {
+            flex: 1;
+            padding: 8px 12px;
+            background: #2B3139;
+            border: 1px solid #2B3139;
+            border-radius: 4px;
+            color: #EAECEF;
+            font-size: 14px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .number-control-input:focus {
+            outline: none;
+            border-color: #FCD535;
+        }
+
+        .rr-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .rr-btn {
+            flex: 1;
+            padding: 8px;
+            background: #2B3139;
+            border: 1px solid #2B3139;
+            border-radius: 4px;
+            color: #848E9C;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .rr-btn:hover {
+            border-color: #FCD535;
+            color: #FCD535;
+        }
+
+        .rr-btn.active {
+            background: #FCD535;
+            border-color: #FCD535;
+            color: #1E2026;
+        }
+
         .save-btn {
             width: 100%;
             padding: 12px;
@@ -351,6 +425,15 @@
 
         #calculateAuto:hover {
             background: #39b0ff;
+        }
+
+        #calculateReturns {
+            background: #0ECB81;
+            color: #0B0E11;
+        }
+
+        #calculateReturns:hover {
+            background: #2BDF9B;
         }
 
         .results-panel {
@@ -604,6 +687,7 @@
                 <button class="main-tab active" id="pnlTab">PnL</button>
                 <button class="main-tab" id="autoTpSlTab">Auto TP/SL</button>
                 <button class="main-tab" id="riskBasedTab">Risk-Based Setup</button>
+                <button class="main-tab" id="tradeReturnsTab">Trade Returns</button>
             </div>
 
             <div class="tab-content active" id="pnlContent">
@@ -800,6 +884,65 @@
                 <button class="calculate-btn" id="calculateRisk">Calculate Setup</button>
             </div>
 
+            <div class="tab-content" id="tradeReturnsContent">
+                <div class="info-box">
+                    <div class="info-box-title">Trade Returns Calculator</div>
+                    <div class="info-box-content">Calculate your expected returns based on your trading strategy, win rate, and risk management.</div>
+                </div>
+
+                <div class="input-group">
+                    <label>Start Balance ($)</label>
+                    <div class="number-control">
+                        <button class="number-control-btn" id="decreaseStartBalance">−</button>
+                        <input type="number" class="number-control-input" id="startBalance" value="1000" step="100">
+                        <button class="number-control-btn" id="increaseStartBalance">+</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Number of Trades</label>
+                    <div class="number-control">
+                        <button class="number-control-btn" id="decreaseNumTrades">−</button>
+                        <input type="number" class="number-control-input" id="numTrades" value="20" step="1">
+                        <button class="number-control-btn" id="increaseNumTrades">+</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Typical Risk per Trade (%)</label>
+                    <div class="number-control">
+                        <button class="number-control-btn" id="decreaseRiskPercent">−</button>
+                        <input type="number" class="number-control-input" id="riskPercent" value="2" step="0.1">
+                        <button class="number-control-btn" id="increaseRiskPercent">+</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Risk:Reward Ratio (1:X)</label>
+                    <div class="number-control">
+                        <button class="number-control-btn" id="decreaseRrRatio">−</button>
+                        <input type="number" class="number-control-input" id="rrRatioReturns" value="2" step="0.1">
+                        <button class="number-control-btn" id="increaseRrRatio">+</button>
+                    </div>
+                    <div class="rr-buttons">
+                        <button class="rr-btn" data-rr="1.5">RR 1:1.5</button>
+                        <button class="rr-btn active" data-rr="2">RR 1:2</button>
+                        <button class="rr-btn" data-rr="3">RR 1:3</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Win Rate (%)</label>
+                    <div class="number-control">
+                        <button class="number-control-btn" id="decreaseWinRate">−</button>
+                        <input type="number" class="number-control-input" id="winRate" value="60" step="1">
+                        <button class="number-control-btn" id="increaseWinRate">+</button>
+                    </div>
+                </div>
+
+                <button class="calculate-btn" id="calculateReturns" style="background: #0ECB81; color: #0B0E11;">Calculate Returns</button>
+            </div>
+
             <div class="save-message" id="saveMessage"></div>
             <button class="save-btn" id="saveDataBtn">Save Data</button>
             <div class="note">
@@ -977,6 +1120,47 @@
                 <div class="result-row">
                     <span class="result-label">Liquidation Price</span>
                     <span class="result-value loss" id="riskLiquidation">--USDT</span>
+                </div>
+            </div>
+
+            <div id="returnsResults" style="display: none;">
+                <div class="section-divider"></div>
+                <div class="results-header" style="font-size: 13px; margin-bottom: 12px;">Result of Calculation</div>
+                <div class="result-row">
+                    <span class="result-label">Account Start</span>
+                    <span class="result-value" id="returnsStartBalance">--</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Avg. Gain per Trade</span>
+                    <span class="result-value profit" id="returnsAvgGain">--%</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">End Balance</span>
+                    <span class="result-value profit" id="returnsEndBalance">--</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Return on Investment</span>
+                    <span class="result-value profit" id="returnsROI">--%</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Number of Trades</span>
+                    <span class="result-value" id="returnsNumTrades">--</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Profitable Trades</span>
+                    <span class="result-value profit" id="returnsWinningTrades">--</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Losing Trades</span>
+                    <span class="result-value loss" id="returnsLosingTrades">--</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Max Drawdown</span>
+                    <span class="result-value loss" id="returnsMaxDrawdown">--</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Max Drawdown</span>
+                    <span class="result-value loss" id="returnsMaxDrawdownPercent">--%</span>
                 </div>
             </div>
         </div>
@@ -1234,9 +1418,11 @@
         const pnlTab = document.getElementById('pnlTab');
         const autoTpSlTab = document.getElementById('autoTpSlTab');
         const riskBasedTab = document.getElementById('riskBasedTab');
+        const tradeReturnsTab = document.getElementById('tradeReturnsTab');
         const pnlContent = document.getElementById('pnlContent');
         const autoTpSlContent = document.getElementById('autoTpSlContent');
         const riskBasedContent = document.getElementById('riskBasedContent');
+        const tradeReturnsContent = document.getElementById('tradeReturnsContent');
         
         const longBtnRisk = document.getElementById('longBtnRisk');
         const shortBtnRisk = document.getElementById('shortBtnRisk');
@@ -1249,33 +1435,49 @@
                 pnlTab.classList.add('active');
                 autoTpSlTab.classList.remove('active');
                 riskBasedTab.classList.remove('active');
+                tradeReturnsTab.classList.remove('active');
                 pnlContent.classList.add('active');
                 autoTpSlContent.classList.remove('active');
                 riskBasedContent.classList.remove('active');
+                tradeReturnsContent.classList.remove('active');
                 entryPriceAuto.value = document.getElementById('entryPrice').value;
                 quantityAuto.value = document.getElementById('quantity').value;
             } else if (activeTab === 'autoTpSl') {
                 autoTpSlTab.classList.add('active');
                 pnlTab.classList.remove('active');
                 riskBasedTab.classList.remove('active');
+                tradeReturnsTab.classList.remove('active');
                 autoTpSlContent.classList.add('active');
                 pnlContent.classList.remove('active');
                 riskBasedContent.classList.remove('active');
+                tradeReturnsContent.classList.remove('active');
                 entryPriceAuto.value = document.getElementById('entryPrice').value;
                 quantityAuto.value = document.getElementById('quantity').value;
             } else if (activeTab === 'riskBased') {
                 riskBasedTab.classList.add('active');
                 pnlTab.classList.remove('active');
                 autoTpSlTab.classList.remove('active');
+                tradeReturnsTab.classList.remove('active');
                 riskBasedContent.classList.add('active');
                 pnlContent.classList.remove('active');
                 autoTpSlContent.classList.remove('active');
+                tradeReturnsContent.classList.remove('active');
+            } else if (activeTab === 'tradeReturns') {
+                tradeReturnsTab.classList.add('active');
+                pnlTab.classList.remove('active');
+                autoTpSlTab.classList.remove('active');
+                riskBasedTab.classList.remove('active');
+                tradeReturnsContent.classList.add('active');
+                pnlContent.classList.remove('active');
+                autoTpSlContent.classList.remove('active');
+                riskBasedContent.classList.remove('active');
             }
         }
         
         pnlTab.addEventListener('click', () => switchTab('pnl'));
         autoTpSlTab.addEventListener('click', () => switchTab('autoTpSl'));
         riskBasedTab.addEventListener('click', () => switchTab('riskBased'));
+        tradeReturnsTab.addEventListener('click', () => switchTab('tradeReturns'));
         
         longBtn.addEventListener('click', function() {
             currentPosition = 'long';
@@ -1381,6 +1583,160 @@
             };
         }
         
+        // Trade Returns Calculator Functions
+        function setupNumberControls() {
+            // Start Balance controls
+            document.getElementById('decreaseStartBalance').addEventListener('click', function() {
+                const input = document.getElementById('startBalance');
+                const currentValue = parseFloat(input.value) || 0;
+                input.value = Math.max(0, currentValue - 100);
+            });
+            
+            document.getElementById('increaseStartBalance').addEventListener('click', function() {
+                const input = document.getElementById('startBalance');
+                const currentValue = parseFloat(input.value) || 0;
+                input.value = currentValue + 100;
+            });
+            
+            // Number of Trades controls
+            document.getElementById('decreaseNumTrades').addEventListener('click', function() {
+                const input = document.getElementById('numTrades');
+                const currentValue = parseFloat(input.value) || 0;
+                input.value = Math.max(1, currentValue - 1);
+            });
+            
+            document.getElementById('increaseNumTrades').addEventListener('click', function() {
+                const input = document.getElementById('numTrades');
+                const currentValue = parseFloat(input.value) || 0;
+                input.value = currentValue + 1;
+            });
+            
+            // Risk Percent controls
+            document.getElementById('decreaseRiskPercent').addEventListener('click', function() {
+                const input = document.getElementById('riskPercent');
+                const currentValue = parseFloat(input.value) || 0;
+                input.value = Math.max(0.1, currentValue - 0.1);
+            });
+            
+            document.getElementById('increaseRiskPercent').addEventListener('click', function() {
+                const input = document.getElementById('riskPercent');
+                const currentValue = parseFloat(input.value) || 0;
+                input.value = Math.min(100, currentValue + 0.1);
+            });
+            
+            // R:R Ratio controls
+            document.getElementById('decreaseRrRatio').addEventListener('click', function() {
+                const input = document.getElementById('rrRatioReturns');
+                const currentValue = parseFloat(input.value) || 0;
+                input.value = Math.max(0.1, currentValue - 0.1);
+            });
+            
+            document.getElementById('increaseRrRatio').addEventListener('click', function() {
+                const input = document.getElementById('rrRatioReturns');
+                const currentValue = parseFloat(input.value) || 0;
+                input.value = currentValue + 0.1;
+            });
+            
+            // Win Rate controls
+            document.getElementById('decreaseWinRate').addEventListener('click', function() {
+                const input = document.getElementById('winRate');
+                const currentValue = parseFloat(input.value) || 0;
+                input.value = Math.max(0, currentValue - 1);
+            });
+            
+            document.getElementById('increaseWinRate').addEventListener('click', function() {
+                const input = document.getElementById('winRate');
+                const currentValue = parseFloat(input.value) || 0;
+                input.value = Math.min(100, currentValue + 1);
+            });
+            
+            // R:R Ratio buttons
+            document.querySelectorAll('.rr-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.rr-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const rrValue = parseFloat(this.dataset.rr);
+                    document.getElementById('rrRatioReturns').value = rrValue;
+                });
+            });
+        }
+        
+        function calculateTradeReturns() {
+            const startBalance = parseFloat(document.getElementById('startBalance').value) || 0;
+            const numTrades = parseInt(document.getElementById('numTrades').value) || 0;
+            const riskPercent = parseFloat(document.getElementById('riskPercent').value) || 0;
+            const rrRatio = parseFloat(document.getElementById('rrRatioReturns').value) || 0;
+            const winRate = parseFloat(document.getElementById('winRate').value) || 0;
+            
+            if (!startBalance || !numTrades || !riskPercent || !rrRatio || !winRate) {
+                alert('Please fill in all fields for trade returns calculation');
+                return;
+            }
+            
+            // Calculate returns
+            let currentBalance = startBalance;
+            let maxBalance = startBalance;
+            let maxDrawdown = 0;
+            let maxDrawdownPercent = 0;
+            let totalProfit = 0;
+            
+            const riskAmountPerTrade = (riskPercent / 100);
+            const winProbability = winRate / 100;
+            
+            // Simulate trades
+            for (let i = 0; i < numTrades; i++) {
+                const isWin = Math.random() < winProbability;
+                
+                if (isWin) {
+                    // Winning trade: profit = risk * R:R ratio
+                    const profit = currentBalance * riskAmountPerTrade * rrRatio;
+                    currentBalance += profit;
+                    totalProfit += profit;
+                } else {
+                    // Losing trade: loss = risk
+                    const loss = currentBalance * riskAmountPerTrade;
+                    currentBalance -= loss;
+                    totalProfit -= loss;
+                }
+                
+                // Update max drawdown
+                if (currentBalance > maxBalance) {
+                    maxBalance = currentBalance;
+                }
+                
+                const drawdown = maxBalance - currentBalance;
+                if (drawdown > maxDrawdown) {
+                    maxDrawdown = drawdown;
+                    maxDrawdownPercent = (drawdown / maxBalance) * 100;
+                }
+            }
+            
+            // Calculate statistics
+            const winningTrades = Math.round(numTrades * winProbability);
+            const losingTrades = numTrades - winningTrades;
+            const avgGainPerTrade = (totalProfit / numTrades / startBalance) * 100;
+            const totalROI = ((currentBalance - startBalance) / startBalance) * 100;
+            
+            // Display results
+            document.getElementById('returnsStartBalance').textContent = '$' + startBalance.toFixed(2);
+            document.getElementById('returnsAvgGain').textContent = avgGainPerTrade.toFixed(2) + '%';
+            document.getElementById('returnsEndBalance').textContent = '$' + currentBalance.toFixed(2);
+            document.getElementById('returnsROI').textContent = totalROI.toFixed(2) + '%';
+            document.getElementById('returnsNumTrades').textContent = numTrades;
+            document.getElementById('returnsWinningTrades').textContent = winningTrades;
+            document.getElementById('returnsLosingTrades').textContent = losingTrades;
+            document.getElementById('returnsMaxDrawdown').textContent = '$' + maxDrawdown.toFixed(2);
+            document.getElementById('returnsMaxDrawdownPercent').textContent = maxDrawdownPercent.toFixed(2) + '%';
+            
+            // Show returns results
+            document.getElementById('returnsResults').style.display = 'block';
+            document.getElementById('manualResults').style.display = 'none';
+            document.getElementById('slResults').style.display = 'none';
+            document.getElementById('recommendedSL').style.display = 'none';
+            document.getElementById('autoResults').style.display = 'none';
+            document.getElementById('riskResults').style.display = 'none';
+        }
+        
         document.getElementById('calculateBtn').addEventListener('click', function() {
             const entryPrice = parseFloat(document.getElementById('entryPrice').value);
             const exitPrice = parseFloat(document.getElementById('exitPrice').value);
@@ -1458,6 +1814,7 @@
             document.getElementById('riskReward').textContent = riskRewardRatio;
             document.getElementById('manualResults').style.display = 'block';
             document.getElementById('autoResults').style.display = 'none';
+            document.getElementById('returnsResults').style.display = 'none';
         });
         
         document.getElementById('calculateAuto').addEventListener('click', function() {
@@ -1505,6 +1862,7 @@
             document.getElementById('slResults').style.display = 'none';
             document.getElementById('recommendedSL').style.display = 'none';
             document.getElementById('riskResults').style.display = 'none';
+            document.getElementById('returnsResults').style.display = 'none';
         });
         
         document.getElementById('calculateRisk').addEventListener('click', function() {
@@ -1606,7 +1964,10 @@
             document.getElementById('slResults').style.display = 'none';
             document.getElementById('recommendedSL').style.display = 'none';
             document.getElementById('autoResults').style.display = 'none';
+            document.getElementById('returnsResults').style.display = 'none';
         });
+        
+        document.getElementById('calculateReturns').addEventListener('click', calculateTradeReturns);
         
         document.getElementById('saveDataBtn').addEventListener('click', function() {
             const dataToSave = {};
@@ -1648,6 +2009,9 @@
         // Initialize entry prices with current price
         entryPriceAuto.value = document.getElementById('entryPrice').value;
         quantityAuto.value = document.getElementById('quantity').value;
+        
+        // Setup number controls for trade returns calculator
+        setupNumberControls();
         
         // Fetch live price on page load
         document.addEventListener('DOMContentLoaded', function() {
