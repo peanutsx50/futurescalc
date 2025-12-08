@@ -530,6 +530,72 @@
             line-height: 1.5;
         }
 
+        .simulations-control {
+            margin-top: 8px;
+            padding: 8px;
+            background: #2B3139;
+            border-radius: 4px;
+        }
+
+        .simulations-control label {
+            display: block;
+            font-size: 11px;
+            color: #848E9C;
+            margin-bottom: 4px;
+        }
+
+        .simulations-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .simulations-input input {
+            flex: 1;
+            padding: 6px 10px;
+            background: #1E2026;
+            border: 1px solid #2B3139;
+            border-radius: 4px;
+            color: #EAECEF;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .simulations-input input:focus {
+            outline: none;
+            border-color: #FCD535;
+        }
+
+        .simulations-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .sim-preset-btn {
+            padding: 4px;
+            background: #1E2026;
+            border: 1px solid #2B3139;
+            border-radius: 4px;
+            color: #848E9C;
+            font-size: 11px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .sim-preset-btn:hover {
+            border-color: #FCD535;
+            color: #FCD535;
+        }
+
+        .sim-preset-btn.active {
+            background: #FCD535;
+            border-color: #FCD535;
+            color: #1E2026;
+        }
+
         /* Responsive layout changes only */
         @media (max-width: 900px) {
             .container {
@@ -887,7 +953,7 @@
             <div class="tab-content" id="tradeReturnsContent">
                 <div class="info-box">
                     <div class="info-box-title">Trade Returns Calculator</div>
-                    <div class="info-box-content">Calculate your expected returns based on your trading strategy, win rate, and risk management.</div>
+                    <div class="info-box-content">Calculate your expected returns based on your trading strategy, win rate, and risk management. Uses Monte Carlo simulation to show probability distribution.</div>
                 </div>
 
                 <div class="input-group">
@@ -937,6 +1003,22 @@
                         <button class="number-control-btn" id="decreaseWinRate">−</button>
                         <input type="number" class="number-control-input" id="winRate" value="60" step="1">
                         <button class="number-control-btn" id="increaseWinRate">+</button>
+                    </div>
+                </div>
+
+                <div class="simulations-control">
+                    <label>Number of Simulations</label>
+                    <div class="simulations-input">
+                        <input type="number" id="numSimulations" value="10000" min="100" max="100000" step="100">
+                        <span style="font-size: 11px; color: #848E9C;">runs</span>
+                    </div>
+                    <div class="simulations-presets">
+                        <button class="sim-preset-btn" data-sim="1000">1,000</button>
+                        <button class="sim-preset-btn" data-sim="5000">5,000</button>
+                        <button class="sim-preset-btn active" data-sim="10000">10,000</button>
+                        <button class="sim-preset-btn" data-sim="25000">25,000</button>
+                        <button class="sim-preset-btn" data-sim="50000">50,000</button>
+                        <button class="sim-preset-btn" data-sim="100000">100,000</button>
                     </div>
                 </div>
 
@@ -1124,44 +1206,7 @@
             </div>
 
             <div id="returnsResults" style="display: none;">
-                <div class="section-divider"></div>
-                <div class="results-header" style="font-size: 13px; margin-bottom: 12px;">Result of Calculation</div>
-                <div class="result-row">
-                    <span class="result-label">Account Start</span>
-                    <span class="result-value" id="returnsStartBalance">--</span>
-                </div>
-                <div class="result-row">
-                    <span class="result-label">Avg. Gain per Trade</span>
-                    <span class="result-value profit" id="returnsAvgGain">--%</span>
-                </div>
-                <div class="result-row">
-                    <span class="result-label">End Balance</span>
-                    <span class="result-value profit" id="returnsEndBalance">--</span>
-                </div>
-                <div class="result-row">
-                    <span class="result-label">Return on Investment</span>
-                    <span class="result-value profit" id="returnsROI">--%</span>
-                </div>
-                <div class="result-row">
-                    <span class="result-label">Number of Trades</span>
-                    <span class="result-value" id="returnsNumTrades">--</span>
-                </div>
-                <div class="result-row">
-                    <span class="result-label">Profitable Trades</span>
-                    <span class="result-value profit" id="returnsWinningTrades">--</span>
-                </div>
-                <div class="result-row">
-                    <span class="result-label">Losing Trades</span>
-                    <span class="result-value loss" id="returnsLosingTrades">--</span>
-                </div>
-                <div class="result-row">
-                    <span class="result-label">Max Drawdown</span>
-                    <span class="result-value loss" id="returnsMaxDrawdown">--</span>
-                </div>
-                <div class="result-row">
-                    <span class="result-label">Max Drawdown</span>
-                    <span class="result-value loss" id="returnsMaxDrawdownPercent">--%</span>
-                </div>
+                <!-- Results will be inserted here by JavaScript -->
             </div>
         </div>
     </div>
@@ -1303,6 +1348,20 @@
         const currentPriceInput = document.getElementById('currentPrice');
         const livePriceStatus = document.getElementById('livePriceStatus');
         const refreshPriceBtn = document.getElementById('refreshPriceBtn');
+        
+        // Helper function for rounded rectangles
+        CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+            if (width < 2 * radius) radius = width / 2;
+            if (height < 2 * radius) radius = height / 2;
+            this.beginPath();
+            this.moveTo(x + radius, y);
+            this.arcTo(x + width, y, x + width, y + height, radius);
+            this.arcTo(x + width, y + height, x, y + height, radius);
+            this.arcTo(x, y + height, x, y, radius);
+            this.arcTo(x, y, x + width, y, radius);
+            this.closePath();
+            return this;
+        };
         
         // Binance Futures fee structure (maker/taker)
         function getFeeRate(leverage) {
@@ -1659,6 +1718,16 @@
                     document.getElementById('rrRatioReturns').value = rrValue;
                 });
             });
+            
+            // Simulations preset buttons
+            document.querySelectorAll('.sim-preset-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.sim-preset-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const simValue = parseInt(this.dataset.sim);
+                    document.getElementById('numSimulations').value = simValue;
+                });
+            });
         }
         
         function calculateTradeReturns() {
@@ -1667,74 +1736,677 @@
             const riskPercent = parseFloat(document.getElementById('riskPercent').value) || 0;
             const rrRatio = parseFloat(document.getElementById('rrRatioReturns').value) || 0;
             const winRate = parseFloat(document.getElementById('winRate').value) || 0;
+            const numSimulations = parseInt(document.getElementById('numSimulations').value) || 10000;
             
             if (!startBalance || !numTrades || !riskPercent || !rrRatio || !winRate) {
                 alert('Please fill in all fields for trade returns calculation');
                 return;
             }
             
-            // Calculate returns
-            let currentBalance = startBalance;
-            let maxBalance = startBalance;
-            let maxDrawdown = 0;
-            let maxDrawdownPercent = 0;
-            let totalProfit = 0;
+            if (numSimulations < 100) {
+                alert('Please use at least 100 simulations for accurate results');
+                return;
+            }
             
-            const riskAmountPerTrade = (riskPercent / 100);
+            if (numSimulations > 100000) {
+                alert('Maximum 100,000 simulations allowed for performance');
+                return;
+            }
+            
+            // Show loading state
+            const calculateBtn = document.getElementById('calculateReturns');
+            const originalText = calculateBtn.textContent;
+            calculateBtn.textContent = 'Running Simulations...';
+            calculateBtn.disabled = true;
+            
+            // Run simulation after a brief delay to allow UI to update
+            setTimeout(() => {
+                runMonteCarloSimulation(startBalance, numTrades, riskPercent, rrRatio, winRate, numSimulations);
+                
+                // Restore button
+                calculateBtn.textContent = originalText;
+                calculateBtn.disabled = false;
+            }, 50);
+        }
+        
+        function runMonteCarloSimulation(startBalance, numTrades, riskPercent, rrRatio, winRate, numSimulations) {
+            // Convert percentages to decimals
+            const riskPerTrade = riskPercent / 100;
             const winProbability = winRate / 100;
             
-            // Simulate trades
-            for (let i = 0; i < numTrades; i++) {
-                const isWin = Math.random() < winProbability;
+            // ===== 1. EXPECTED VALUE CALCULATION =====
+            const expectedGainPerTradePercent = 
+                (winProbability * riskPerTrade * rrRatio) - 
+                ((1 - winProbability) * riskPerTrade);
+            
+            const expectedBalance = startBalance * Math.pow(
+                1 + expectedGainPerTradePercent, 
+                numTrades
+            );
+            
+            const totalExpectedProfit = expectedBalance - startBalance;
+            const expectedROI = (totalExpectedProfit / startBalance) * 100;
+            const expectedWinningTrades = Math.round(numTrades * winProbability);
+            const expectedLosingTrades = numTrades - expectedWinningTrades;
+            
+            // ===== 2. MONTE CARLO SIMULATION =====
+            let results = [];
+            let totalEndBalance = 0;
+            let maxBalance = -Infinity;
+            let minBalance = Infinity;
+            let totalMaxDrawdown = 0;
+            let winningSimulations = 0;
+            let totalWinningTrades = 0;
+            let totalLosingTrades = 0;
+            
+            // Performance optimization: batch processing
+            const batchSize = 1000;
+            const numBatches = Math.ceil(numSimulations / batchSize);
+            
+            for (let batch = 0; batch < numBatches; batch++) {
+                const batchStart = batch * batchSize;
+                const batchEnd = Math.min(batchStart + batchSize, numSimulations);
                 
-                if (isWin) {
-                    // Winning trade: profit = risk * R:R ratio
-                    const profit = currentBalance * riskAmountPerTrade * rrRatio;
-                    currentBalance += profit;
-                    totalProfit += profit;
-                } else {
-                    // Losing trade: loss = risk
-                    const loss = currentBalance * riskAmountPerTrade;
-                    currentBalance -= loss;
-                    totalProfit -= loss;
-                }
-                
-                // Update max drawdown
-                if (currentBalance > maxBalance) {
-                    maxBalance = currentBalance;
-                }
-                
-                const drawdown = maxBalance - currentBalance;
-                if (drawdown > maxDrawdown) {
-                    maxDrawdown = drawdown;
-                    maxDrawdownPercent = (drawdown / maxBalance) * 100;
+                for (let sim = batchStart; sim < batchEnd; sim++) {
+                    let balance = startBalance;
+                    let peak = startBalance;
+                    let maxDrawdown = 0;
+                    let winningTradesInSim = 0;
+                    let losingTradesInSim = 0;
+                    
+                    // Run one simulation
+                    for (let i = 0; i < numTrades; i++) {
+                        const isWin = Math.random() < winProbability;
+                        
+                        if (isWin) {
+                            balance += balance * riskPerTrade * rrRatio;
+                            winningTradesInSim++;
+                        } else {
+                            balance -= balance * riskPerTrade;
+                            losingTradesInSim++;
+                        }
+                        
+                        // Track peak and drawdown
+                        if (balance > peak) {
+                            peak = balance;
+                        }
+                        const drawdown = peak - balance;
+                        if (drawdown > maxDrawdown) {
+                            maxDrawdown = drawdown;
+                        }
+                    }
+                    
+                    // Store result
+                    results.push({
+                        endBalance: balance,
+                        maxDrawdown: maxDrawdown,
+                        profit: balance - startBalance,
+                        roi: ((balance - startBalance) / startBalance) * 100,
+                        winningTrades: winningTradesInSim,
+                        losingTrades: losingTradesInSim
+                    });
+                    
+                    // Update statistics
+                    totalEndBalance += balance;
+                    if (balance > maxBalance) maxBalance = balance;
+                    if (balance < minBalance) minBalance = balance;
+                    totalMaxDrawdown += maxDrawdown;
+                    if (balance > startBalance) winningSimulations++;
+                    totalWinningTrades += winningTradesInSim;
+                    totalLosingTrades += losingTradesInSim;
                 }
             }
             
-            // Calculate statistics
-            const winningTrades = Math.round(numTrades * winProbability);
-            const losingTrades = numTrades - winningTrades;
-            const avgGainPerTrade = (totalProfit / numTrades / startBalance) * 100;
-            const totalROI = ((currentBalance - startBalance) / startBalance) * 100;
+            // Calculate statistics from simulations
+            const avgEndBalance = totalEndBalance / numSimulations;
+            const avgMaxDrawdown = totalMaxDrawdown / numSimulations;
+            const winRateSimulated = (winningSimulations / numSimulations) * 100;
+            const avgWinningTrades = totalWinningTrades / numSimulations;
+            const avgLosingTrades = totalLosingTrades / numSimulations;
+            const actualWinRate = (avgWinningTrades / (avgWinningTrades + avgLosingTrades)) * 100;
             
-            // Display results
-            document.getElementById('returnsStartBalance').textContent = '$' + startBalance.toFixed(2);
-            document.getElementById('returnsAvgGain').textContent = avgGainPerTrade.toFixed(2) + '%';
-            document.getElementById('returnsEndBalance').textContent = '$' + currentBalance.toFixed(2);
-            document.getElementById('returnsROI').textContent = totalROI.toFixed(2) + '%';
-            document.getElementById('returnsNumTrades').textContent = numTrades;
-            document.getElementById('returnsWinningTrades').textContent = winningTrades;
-            document.getElementById('returnsLosingTrades').textContent = losingTrades;
-            document.getElementById('returnsMaxDrawdown').textContent = '$' + maxDrawdown.toFixed(2);
-            document.getElementById('returnsMaxDrawdownPercent').textContent = maxDrawdownPercent.toFixed(2) + '%';
+            // Sort results for percentiles
+            results.sort((a, b) => a.endBalance - b.endBalance);
             
-            // Show returns results
+            // Calculate percentiles
+            const percentile10 = results[Math.floor(numSimulations * 0.10)].endBalance;
+            const percentile25 = results[Math.floor(numSimulations * 0.25)].endBalance;
+            const percentile50 = results[Math.floor(numSimulations * 0.50)].endBalance; // Median
+            const percentile75 = results[Math.floor(numSimulations * 0.75)].endBalance;
+            const percentile90 = results[Math.floor(numSimulations * 0.90)].endBalance;
+            
+            // Calculate probability of being profitable
+            const profitableResults = results.filter(r => r.endBalance > startBalance);
+            const probabilityOfProfit = (profitableResults.length / numSimulations) * 100;
+            
+            // Calculate probability of losing more than 20%
+            const bigLossResults = results.filter(r => r.endBalance < startBalance * 0.8);
+            const probabilityOfBigLoss = (bigLossResults.length / numSimulations) * 100;
+            
+            // Calculate probability of doubling money
+            const doubleMoneyResults = results.filter(r => r.endBalance >= startBalance * 2);
+            const probabilityOfDouble = (doubleMoneyResults.length / numSimulations) * 100;
+            
+            // ===== 3. CREATE DISTRIBUTION CHART WITH HOVER =====
+            createDistributionChart(results, startBalance, numSimulations);
+            
+            // ===== 4. DISPLAY COMPREHENSIVE RESULTS =====
+            const resultsHTML = `
+                <div class="section-divider"></div>
+                <div class="results-header" style="font-size: 13px; margin-bottom: 12px;">📊 Simulation Settings</div>
+                <div class="result-row">
+                    <span class="result-label">Simulations Run</span>
+                    <span class="result-value">${numSimulations.toLocaleString()}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Trades per Simulation</span>
+                    <span class="result-value">${numTrades}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Input Win Rate</span>
+                    <span class="result-value">${winRate}%</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Simulated Win Rate</span>
+                    <span class="result-value">${actualWinRate.toFixed(1)}%</span>
+                </div>
+                
+                <div class="section-divider"></div>
+                <div class="results-header" style="font-size: 13px; margin-bottom: 12px;">📈 Expected Performance</div>
+                <div class="result-row">
+                    <span class="result-label">Expected Value (Mathematical)</span>
+                    <span class="result-value ${expectedBalance >= startBalance ? 'profit' : 'loss'}">$${expectedBalance.toFixed(2)}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Expected ROI</span>
+                    <span class="result-value ${expectedROI >= 0 ? 'profit' : 'loss'}">${expectedROI.toFixed(2)}%</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Expected Gain per Trade</span>
+                    <span class="result-value ${expectedGainPerTradePercent >= 0 ? 'profit' : 'loss'}">${(expectedGainPerTradePercent * 100).toFixed(2)}%</span>
+                </div>
+                
+                <div class="section-divider"></div>
+                <div class="results-header" style="font-size: 13px; margin-bottom: 12px;">🎲 Monte Carlo Results</div>
+                <div class="result-row">
+                    <span class="result-label">Average End Balance</span>
+                    <span class="result-value ${avgEndBalance >= startBalance ? 'profit' : 'loss'}">$${avgEndBalance.toFixed(2)}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Probability of Profit</span>
+                    <span class="result-value ${probabilityOfProfit >= 50 ? 'profit' : 'loss'}">${probabilityOfProfit.toFixed(1)}%</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Probability of 2x</span>
+                    <span class="result-value ${probabilityOfDouble >= 20 ? 'profit' : 'loss'}">${probabilityOfDouble.toFixed(1)}%</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Profitable Simulations</span>
+                    <span class="result-value ${winRateSimulated >= 50 ? 'profit' : 'loss'}">${winningSimulations.toLocaleString()} (${winRateSimulated.toFixed(1)}%)</span>
+                </div>
+                
+                <div class="section-divider"></div>
+                <div class="results-header" style="font-size: 13px; margin-bottom: 12px;">📉 Risk & Distribution</div>
+                <div class="result-row">
+                    <span class="result-label">Worst Case (Min)</span>
+                    <span class="result-value loss">$${minBalance.toFixed(2)} (${((minBalance-startBalance)/startBalance*100).toFixed(1)}%)</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Best Case (Max)</span>
+                    <span class="result-value profit">$${maxBalance.toFixed(2)} (${((maxBalance-startBalance)/startBalance*100).toFixed(1)}%)</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Average Max Drawdown</span>
+                    <span class="result-value loss">$${avgMaxDrawdown.toFixed(2)}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Risk of 20%+ Loss</span>
+                    <span class="result-value loss">${probabilityOfBigLoss.toFixed(1)}%</span>
+                </div>
+                
+                <div class="section-divider"></div>
+                <div class="results-header" style="font-size: 13px; margin-bottom: 12px;">🎯 Outcome Distribution</div>
+                <div class="result-row">
+                    <span class="result-label">10th Percentile (Very Bad)</span>
+                    <span class="result-value loss">$${percentile10.toFixed(2)} (${((percentile10-startBalance)/startBalance*100).toFixed(1)}%)</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">25th Percentile (Bad)</span>
+                    <span class="result-value ${percentile25 >= startBalance ? 'profit' : 'loss'}">$${percentile25.toFixed(2)} (${((percentile25-startBalance)/startBalance*100).toFixed(1)}%)</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Median (50th)</span>
+                    <span class="result-value ${percentile50 >= startBalance ? 'profit' : 'loss'}">$${percentile50.toFixed(2)} (${((percentile50-startBalance)/startBalance*100).toFixed(1)}%)</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">75th Percentile (Good)</span>
+                    <span class="result-value profit">$${percentile75.toFixed(2)} (${((percentile75-startBalance)/startBalance*100).toFixed(1)}%)</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">90th Percentile (Great)</span>
+                    <span class="result-value profit">$${percentile90.toFixed(2)} (${((percentile90-startBalance)/startBalance*100).toFixed(1)}%)</span>
+                </div>
+                
+                <div id="distributionChart" style="margin-top: 20px; height: 200px; background: #1E2026; border-radius: 4px; padding: 10px; position: relative;">
+                    <!-- Chart will be drawn here -->
+                </div>
+                
+                <div class="info-box" style="margin-top: 16px;">
+                    <div class="info-box-title">📊 Understanding the Distribution</div>
+                    <div class="info-box-content">
+                        <strong>Percentiles:</strong> If you trade this strategy ${numSimulations.toLocaleString()} times:<br>
+                        • <strong>10th:</strong> 10% of the time you'll do WORSE than this<br>
+                        • <strong>25th:</strong> 25% of the time you'll do WORSE than this<br>
+                        • <strong>50th (Median):</strong> 50% better, 50% worse than this<br>
+                        • <strong>75th:</strong> 75% of the time you'll do BETTER than this<br>
+                        • <strong>90th:</strong> 90% of the time you'll do BETTER than this<br><br>
+                        <strong>Chart shows:</strong> Distribution of possible outcomes from ${numSimulations.toLocaleString()} simulations.
+                        <strong>Hover over any bar</strong> to see exact balance range and probability.
+                        More simulations = More accurate probability estimates.
+                    </div>
+                </div>
+            `;
+            
+            // Update results display
+            document.getElementById('returnsResults').innerHTML = resultsHTML;
             document.getElementById('returnsResults').style.display = 'block';
+            
+            // Hide other results sections
             document.getElementById('manualResults').style.display = 'none';
             document.getElementById('slResults').style.display = 'none';
             document.getElementById('recommendedSL').style.display = 'none';
             document.getElementById('autoResults').style.display = 'none';
             document.getElementById('riskResults').style.display = 'none';
+        }
+        
+        function createDistributionChart(results, startBalance, numSimulations) {
+    // Wait for DOM to update
+    setTimeout(() => {
+        const chartContainer = document.getElementById('distributionChart');
+        if (!chartContainer) return;
+        
+        // Clear previous chart
+        chartContainer.innerHTML = '';
+        
+        // Create canvas for chart with extra space for tooltips
+        const canvas = document.createElement('canvas');
+        canvas.width = chartContainer.clientWidth;
+        canvas.height = 200; // Increased height for tooltip space
+        canvas.style.cursor = 'crosshair';
+        canvas.id = 'distributionCanvas';
+        chartContainer.appendChild(canvas);
+        
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        const padding = { top: 20, right: 10, bottom: 40, left: 40 };
+        
+        // Chart area dimensions
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
+        
+        // Extract balances
+        const balances = results.map(r => r.endBalance);
+        const min = Math.min(...balances);
+        const max = Math.max(...balances);
+        
+        // Create histogram bins
+        const numBins = Math.min(30, Math.floor(Math.sqrt(numSimulations)));
+        const binWidth = (max - min) / numBins;
+        const bins = new Array(numBins).fill(0);
+        
+        // Fill bins
+        balances.forEach(balance => {
+            const binIndex = Math.min(numBins - 1, Math.floor((balance - min) / binWidth));
+            bins[binIndex]++;
+        });
+        
+        // Find max bin count for scaling
+        const maxBinCount = Math.max(...bins);
+        
+        // Store bin data for hover detection
+        const binData = [];
+        const barWidth = chartWidth / numBins;
+        
+        for (let i = 0; i < numBins; i++) {
+            const binMin = min + (i * binWidth);
+            const binMax = binMin + binWidth;
+            const binCenter = binMin + (binWidth / 2);
+            const x = padding.left + (i * barWidth);
+            const barHeight = (bins[i] / maxBinCount) * chartHeight;
+            const y = height - padding.bottom - barHeight;
+            
+            binData.push({
+                x: x,
+                y: y,
+                width: barWidth,
+                height: barHeight,
+                binMin: binMin,
+                binMax: binMax,
+                binCenter: binCenter,
+                count: bins[i],
+                percentage: (bins[i] / numSimulations * 100).toFixed(2)
+            });
+        }
+        
+        // Function to draw the chart
+        function drawChart(highlightedBin = null) {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw grid
+            ctx.strokeStyle = '#2B3139';
+            ctx.lineWidth = 1;
+            
+            // Vertical grid lines
+            for (let i = 0; i <= 10; i++) {
+                const x = padding.left + (i * chartWidth / 10);
+                ctx.beginPath();
+                ctx.moveTo(x, padding.top);
+                ctx.lineTo(x, height - padding.bottom);
+                ctx.stroke();
+            }
+            
+            // Horizontal grid lines
+            for (let i = 0; i <= 5; i++) {
+                const y = height - padding.bottom - (i * chartHeight / 5);
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(width - padding.right, y);
+                ctx.stroke();
+            }
+            
+            // Draw histogram bars
+            binData.forEach((bin, i) => {
+                const isHighlighted = highlightedBin === i;
+                
+                // Color based on position relative to start balance
+                const isProfit = bin.binCenter > startBalance;
+                ctx.fillStyle = isProfit ? 
+                    (isHighlighted ? 'rgba(14, 203, 129, 0.9)' : 'rgba(14, 203, 129, 0.7)') :
+                    (isHighlighted ? 'rgba(246, 70, 93, 0.9)' : 'rgba(246, 70, 93, 0.7)');
+                
+                ctx.fillRect(bin.x, bin.y, bin.width - 1, bin.height);
+                
+                // Draw border if highlighted
+                if (isHighlighted) {
+                    ctx.strokeStyle = '#FCD535';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(bin.x - 1, bin.y - 1, bin.width + 1, bin.height + 2);
+                }
+            });
+            
+            // Draw start balance line
+            const startBalanceX = padding.left + ((startBalance - min) / (max - min)) * chartWidth;
+            ctx.strokeStyle = '#FCD535';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(startBalanceX, padding.top);
+            ctx.lineTo(startBalanceX, height - padding.bottom);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw labels
+            ctx.fillStyle = '#848E9C';
+            ctx.font = '10px monospace';
+            ctx.textAlign = 'center';
+            
+            // X-axis labels (show 5 values)
+            for (let i = 0; i <= 4; i++) {
+                const value = min + (i * (max - min) / 4);
+                const x = padding.left + (i * chartWidth / 4);
+                ctx.fillText('$' + abbreviateNumber(value), x, height - padding.bottom + 15);
+            }
+            
+            // Y-axis labels
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const count = Math.round((i / 5) * maxBinCount);
+                const y = height - padding.bottom - (i * chartHeight / 5);
+                ctx.fillText(abbreviateNumber(count), padding.left - 5, y + 3);
+            }
+            
+            // Chart title
+            ctx.fillStyle = '#EAECEF';
+            ctx.font = '11px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Outcome Distribution (${numSimulations.toLocaleString()} simulations)`, width / 2, 15);
+            
+            // Legend
+            ctx.fillStyle = '#0ECB81';
+            ctx.fillRect(width - 120, 20, 10, 10);
+            ctx.fillStyle = '#848E9C';
+            ctx.font = '10px monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText('Profitable', width - 105, 28);
+            
+            ctx.fillStyle = '#F6465D';
+            ctx.fillRect(width - 120, 35, 10, 10);
+            ctx.fillStyle = '#848E9C';
+            ctx.fillText('Losing', width - 105, 43);
+            
+            ctx.fillStyle = '#FCD535';
+            ctx.setLineDash([2, 2]);
+            ctx.beginPath();
+            ctx.moveTo(width - 122, 50);
+            ctx.lineTo(width - 110, 50);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillText('Start Balance', width - 105, 53);
+            
+            // Draw tooltip if hovering
+            if (highlightedBin !== null) {
+                const bin = binData[highlightedBin];
+                const barCenterX = bin.x + (bin.width / 2);
+                const barTop = bin.y;
+                const barBottom = bin.y + bin.height;
+                
+                // Tooltip dimensions
+                const tooltipText = [
+                    `Range: $${bin.binMin.toFixed(2)} - $${bin.binMax.toFixed(2)}`,
+                    `Avg: $${bin.binCenter.toFixed(2)}`,
+                    `Count: ${bin.count.toLocaleString()} (${bin.percentage}%)`
+                ];
+                
+                ctx.font = '10px monospace';
+                const textWidth = Math.max(
+                    ...tooltipText.map(text => ctx.measureText(text).width)
+                );
+                const tooltipWidth = textWidth + 20;
+                const tooltipHeight = 65;
+                const arrowHeight = 10;
+                const margin = 5;
+                
+                // Calculate available space above and below the bar
+                const spaceAbove = barTop - padding.top - margin;
+                const spaceBelow = (height - padding.bottom) - barBottom - margin;
+                
+                // Determine best position for tooltip
+                let tooltipX, tooltipY, arrowY, arrowDirection;
+                
+                // Center tooltip horizontally on bar
+                tooltipX = Math.max(
+                    padding.left + margin + tooltipWidth/2,
+                    Math.min(
+                        width - padding.right - margin - tooltipWidth/2,
+                        barCenterX
+                    )
+                );
+                
+                // Try to place tooltip above bar first
+                if (spaceAbove >= tooltipHeight + arrowHeight) {
+                    // Tooltip above bar
+                    tooltipY = barTop - arrowHeight - tooltipHeight;
+                    arrowY = barTop - arrowHeight;
+                    arrowDirection = 'down';
+                }
+                // If not enough space above, try below bar
+                else if (spaceBelow >= tooltipHeight + arrowHeight) {
+                    // Tooltip below bar
+                    tooltipY = barBottom + arrowHeight;
+                    arrowY = barBottom + arrowHeight;
+                    arrowDirection = 'up';
+                }
+                // If not enough space either way, place it in the best available position
+                else {
+                    if (spaceAbove >= spaceBelow) {
+                        // More space above, but not enough for full tooltip
+                        const availableHeight = Math.max(spaceAbove - arrowHeight, 30);
+                        tooltipY = barTop - arrowHeight - availableHeight;
+                        arrowY = barTop - arrowHeight;
+                        arrowDirection = 'down';
+                    } else {
+                        // More space below
+                        const availableHeight = Math.max(spaceBelow - arrowHeight, 30);
+                        tooltipY = barBottom + arrowHeight;
+                        arrowY = barBottom + arrowHeight;
+                        arrowDirection = 'up';
+                    }
+                }
+                
+                // Ensure tooltip stays within vertical bounds
+                tooltipY = Math.max(
+                    padding.top + margin,
+                    Math.min(
+                        height - padding.bottom - margin - tooltipHeight,
+                        tooltipY
+                    )
+                );
+                
+                // Adjust arrow position based on final tooltip position
+                if (arrowDirection === 'down') {
+                    arrowY = tooltipY + tooltipHeight;
+                } else {
+                    arrowY = tooltipY;
+                }
+                
+                // Draw tooltip background
+                ctx.fillStyle = 'rgba(30, 32, 38, 0.95)';
+                ctx.strokeStyle = '#FCD535';
+                ctx.lineWidth = 1;
+                
+                ctx.beginPath();
+                ctx.roundRect(
+                    tooltipX - tooltipWidth/2, 
+                    tooltipY, 
+                    tooltipWidth, 
+                    tooltipHeight, 
+                    4
+                );
+                ctx.fill();
+                ctx.stroke();
+                
+                // Draw tooltip arrow
+                ctx.beginPath();
+                if (arrowDirection === 'down') {
+                    // Arrow pointing down (from tooltip to bar)
+                    ctx.moveTo(barCenterX, arrowY);
+                    ctx.lineTo(barCenterX - 8, arrowY + 8);
+                    ctx.lineTo(barCenterX + 8, arrowY + 8);
+                } else {
+                    // Arrow pointing up (from tooltip to bar)
+                    ctx.moveTo(barCenterX, arrowY);
+                    ctx.lineTo(barCenterX - 8, arrowY - 8);
+                    ctx.lineTo(barCenterX + 8, arrowY - 8);
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+                
+                // Draw tooltip text
+                ctx.fillStyle = '#EAECEF';
+                ctx.font = '10px monospace';
+                ctx.textAlign = 'center';
+                
+                tooltipText.forEach((text, i) => {
+                    const yPos = tooltipY + 18 + (i * 15);
+                    ctx.fillText(text, tooltipX, yPos);
+                });
+            }
+        }
+        
+        // Initial draw
+        drawChart();
+        
+        // Add hover event listeners
+        let hoverTimeout;
+        let currentHighlight = null;
+        
+        canvas.addEventListener('mousemove', function(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            // Check if mouse is over any bar
+            let hoveredBin = null;
+            
+            for (let i = 0; i < binData.length; i++) {
+                const bin = binData[i];
+                if (x >= bin.x && x <= bin.x + bin.width &&
+                    y >= bin.y && y <= bin.y + bin.height) {
+                    hoveredBin = i;
+                    break;
+                }
+            }
+            
+            // Clear any existing timeout
+            if (hoverTimeout) {
+                clearTimeout(hoverTimeout);
+            }
+            
+            // Update highlight if different
+            if (hoveredBin !== currentHighlight) {
+                currentHighlight = hoveredBin;
+                drawChart(currentHighlight);
+            }
+        });
+        
+        canvas.addEventListener('mouseleave', function() {
+            if (hoverTimeout) {
+                clearTimeout(hoverTimeout);
+            }
+            hoverTimeout = setTimeout(() => {
+                currentHighlight = null;
+                drawChart();
+            }, 100);
+        });
+        
+        // Add touch support for mobile
+        canvas.addEventListener('touchstart', function(event) {
+            event.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = event.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            // Find touched bin
+            for (let i = 0; i < binData.length; i++) {
+                const bin = binData[i];
+                if (x >= bin.x && x <= bin.x + bin.width &&
+                    y >= bin.y && y <= bin.y + bin.height) {
+                    currentHighlight = i;
+                    drawChart(currentHighlight);
+                    
+                    // Show tooltip for 3 seconds on mobile
+                    setTimeout(() => {
+                        currentHighlight = null;
+                        drawChart();
+                    }, 3000);
+                    break;
+                }
+            }
+        });
+        
+    }, 100);
+}
+        
+        function abbreviateNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return Math.round(num).toString();
         }
         
         document.getElementById('calculateBtn').addEventListener('click', function() {
